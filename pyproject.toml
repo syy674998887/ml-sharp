@@ -1,27 +1,35 @@
 [project]
 name = "sharp"
 version = "0.1"
-description = "Inference/Network/Model code for SHARP view synthesis model."
+description = "Community ML-SHARP desktop application and local inference tools."
 readme = "README.md"
+requires-python = ">=3.10,<3.13"
 dependencies = [
   "click",
-  "gsplat",
+  "flask>=3.0.0",
   "imageio[ffmpeg]",
   "matplotlib",
+  "numpy<2",
   "pillow-heif",
   "plyfile",
   "scipy",
   "timm",
-  "torch",
-  "torchvision",
+  "torch==2.11.0+cu128",
+  "torchvision==0.26.0+cu128",
+]
+
+[project.optional-dependencies]
+render = [
+  "gsplat>=1.5.3",
 ]
 
 [project.scripts]
 sharp = "sharp.cli:main_cli"
 
 [project.urls]
-Homepage = "https://github.com/apple/ml-sharp"
-Repository = "https://github.com/apple/ml-sharp"
+Homepage = "https://github.com/syy674998887/ml-sharp"
+Repository = "https://github.com/syy674998887/ml-sharp"
+Upstream = "https://github.com/apple/ml-sharp"
 
 [build-system]
 requires = ["setuptools", "setuptools-scm"]
@@ -30,13 +38,32 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.uv]
+environments = [
+  "sys_platform == 'linux'",
+  "sys_platform == 'win32'",
+]
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cu128", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+torchvision = [
+  { index = "pytorch-cu128", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
 [tool.pyright]
 include = ["src"]
 exclude = [
     "**/node_modules",
     "**/__pycache__",
 ]
-pythonVersion = "3.13"
+pythonVersion = "3.10"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -47,9 +74,6 @@ testpaths = [
 filterwarnings = [
     "ignore::DeprecationWarning"
 ]
-
-[tool.lint.per-file-ignores]
-"__init__.py" = ["F401", "D100", "D104"]
 
 [tool.ruff]
 line-length = 100
@@ -62,8 +86,11 @@ extend-exclude = [
     "*external*",
     "third_party",
 ]
-src = ["sharp"]
-target-version = "py39"
+src = ["src"]
+target-version = "py310"
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "D100", "D104"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ml-sharp - iVideoGameBoss - 3D Gaussian Splat Generator</title>
+    <title>ML-SHARP Desktop</title>
 
     <script type="importmap">
     {
@@ -16,33 +16,248 @@
     </script>
 
     <style>
+        :root {
+            color-scheme: dark;
+            --app-bg: #101116;
+            --panel-bg: rgba(23, 27, 37, 0.82);
+            --panel-border: rgba(255, 255, 255, 0.1);
+            --text-main: #edf2f7;
+            --text-muted: #98a4b5;
+            --text-dim: #697587;
+            --accent: #5ce2cd;
+            --accent-strong: #2bb6ff;
+            --accent-warm: #f1b84b;
+            --danger: #ef4444;
+            --success: #52d273;
+            --shadow-panel: 0 18px 55px rgba(0, 0, 0, 0.32);
+            --titlebar-height: 38px;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(92, 226, 205, 0.58) rgba(255, 255, 255, 0.05);
+        }
+
+        *::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.045);
+            border-radius: 999px;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, rgba(92, 226, 205, 0.85), rgba(43, 182, 255, 0.7));
+            border: 2px solid rgba(16, 17, 22, 0.95);
+            border-radius: 999px;
+        }
+
+        *::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, rgba(120, 242, 225, 0.95), rgba(84, 200, 255, 0.9));
+        }
+
+        html {
+            min-height: 100%;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background:
+                linear-gradient(135deg, rgba(92, 226, 205, 0.08) 0%, transparent 36%),
+                linear-gradient(315deg, rgba(241, 184, 75, 0.07) 0%, transparent 34%),
+                var(--app-bg);
+            background-attachment: fixed;
             min-height: 100vh;
-            color: #e0e0e0;
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        body.desktop-app {
+            height: 100vh;
+            min-height: 0;
+            padding-top: var(--titlebar-height);
+            overflow: hidden;
+        }
+
+        html.desktop-app {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .desktop-titlebar {
+            display: none;
+        }
+
+        body.desktop-app .desktop-titlebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10000;
+            height: var(--titlebar-height);
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: inherit;
+            font-size: 0.76rem;
+            font-weight: 600;
+            line-height: 1;
+            background:
+                linear-gradient(135deg, rgba(92, 226, 205, 0.08) 0%, transparent 36%),
+                linear-gradient(315deg, rgba(241, 184, 75, 0.07) 0%, transparent 34%),
+                var(--app-bg);
+            background-attachment: fixed;
+            border-bottom: 0;
+            box-shadow: none;
+            backdrop-filter: none;
+            -webkit-app-region: drag;
+            user-select: none;
+        }
+
+        .desktop-titlebar-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            height: 100%;
+            padding-left: 15px;
+        }
+
+        .desktop-titlebar-title {
+            color: rgba(246, 248, 251, 0.84);
+            font-size: inherit;
+            font-weight: inherit;
+            font-family: inherit;
+            line-height: inherit;
+            letter-spacing: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .window-controls {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            height: 100%;
+            -webkit-app-region: no-drag;
+        }
+
+        .window-control {
+            position: relative;
+            width: 34px;
+            height: 28px;
+            border: 0;
+            border-radius: 7px;
+            background: transparent;
+            color: rgba(203, 213, 225, 0.66);
+            cursor: pointer;
+            font-size: 0;
+            transition: background 0.16s ease, color 0.16s ease, transform 0.16s ease;
+        }
+
+        .window-control:hover {
+            background: rgba(255, 255, 255, 0.065);
+            color: #ffffff;
+        }
+
+        .window-control:active {
+            transform: translateY(1px);
+        }
+
+        .window-control.close:hover {
+            background: rgba(224, 58, 58, 0.9);
+            color: #ffffff;
+        }
+
+        .window-control::before,
+        .window-control::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            display: block;
+            background: currentColor;
+            transform: translate(-50%, -50%);
+        }
+
+        #window-minimize::before {
+            width: 10px;
+            height: 1.5px;
+            border-radius: 999px;
+        }
+
+        #window-maximize::before {
+            width: 10px;
+            height: 8px;
+            border: 1.5px solid currentColor;
+            border-radius: 2px;
+            background: transparent;
+        }
+
+        #window-maximize.is-restore::before {
+            width: 9px;
+            height: 7px;
+            transform: translate(-42%, -42%);
+        }
+
+        #window-maximize.is-restore::after {
+            width: 9px;
+            height: 7px;
+            border: 1.5px solid currentColor;
+            border-radius: 2px;
+            background: transparent;
+            transform: translate(-62%, -62%);
+            opacity: 0.72;
+        }
+
+        #window-close::before {
+            width: 12px;
+            height: 1.5px;
+            border-radius: 999px;
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        #window-close::after {
+            width: 12px;
+            height: 1.5px;
+            border-radius: 999px;
+            transform: translate(-50%, -50%) rotate(-45deg);
         }
 
         .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
+            width: 100%;
+            max-width: none;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 20px 35px;
+            display: grid;
+            grid-template-rows: minmax(0, 1fr);
+            position: relative;
+        }
+
+        body.desktop-app .container {
+            height: calc(100vh - var(--titlebar-height));
+            min-height: 0;
+            padding: 20px 20px 35px;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         header {
             text-align: center;
-            padding: 30px 0;
+            display: none;
         }
 
         header h1 {
-            font-size: 2.5rem;
-            background: linear-gradient(135deg, #00d4ff, #7b2ff7);
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #ffffff, var(--accent), var(--accent-warm));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -50,34 +265,50 @@
         }
 
         header p {
-            color: #888;
+            color: var(--text-muted);
             font-size: 1.1rem;
+        }
+
+        header a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        header a:hover {
+            color: #ffffff;
         }
 
         .main-content {
             display: grid;
-            grid-template-columns: 350px 1fr;
+            grid-template-columns: minmax(390px, 4fr) minmax(0, 6fr);
             gap: 20px;
-            min-height: 600px;
+            min-height: 0;
+            height: 100%;
         }
 
         .sidebar {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            padding: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--panel-bg);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--panel-border);
+            box-shadow: var(--shadow-panel);
             display: flex;
             flex-direction: column;
             gap: 20px;
+            backdrop-filter: blur(14px);
+            min-height: 0;
+            height: 100%;
+            overflow-y: auto;
         }
 
         /* Mode Tabs */
         .mode-tabs {
             display: flex;
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.25);
             border-radius: 8px;
             padding: 4px;
             gap: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         .mode-btn {
@@ -85,7 +316,7 @@
             padding: 10px;
             background: transparent;
             border: none;
-            color: #888;
+            color: var(--text-muted);
             cursor: pointer;
             border-radius: 6px;
             transition: all 0.2s;
@@ -93,8 +324,9 @@
         }
 
         .mode-btn.active {
-            background: rgba(0, 212, 255, 0.15);
-            color: #00d4ff;
+            background: rgba(92, 226, 205, 0.16);
+            color: var(--accent);
+            box-shadow: inset 0 0 0 1px rgba(92, 226, 205, 0.16);
         }
 
         /* Input Controls */
@@ -105,7 +337,7 @@
         }
 
         .input-group label {
-            color: #ccc;
+            color: #d8dee9;
             font-size: 0.9rem;
             font-weight: 500;
         }
@@ -119,21 +351,36 @@
             flex: 1;
             padding: 12px;
             border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(0, 0, 0, 0.24);
             color: #fff;
             outline: none;
             min-width: 0;
         }
 
         .path-input-container input[type="text"]:focus {
-            border-color: #00d4ff;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(92, 226, 205, 0.12);
+        }
+
+        .path-input-container input[readonly] {
+            cursor: default;
+            color: var(--text-muted);
+            caret-color: transparent;
+        }
+
+        .path-input-container input[type="text"]:placeholder-shown {
+            text-align: center;
+        }
+
+        .path-input-container input[type="text"]:not(:placeholder-shown) {
+            text-align: left;
         }
 
         .browse-btn {
             padding: 0 16px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.14);
             border-radius: 8px;
             color: #fff;
             cursor: pointer;
@@ -143,19 +390,20 @@
         }
 
         .browse-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: #fff;
+            background: rgba(92, 226, 205, 0.14);
+            border-color: rgba(92, 226, 205, 0.45);
         }
 
         .input-group .hint {
             font-size: 0.75rem;
-            color: #666;
+            color: var(--text-dim);
             line-height: 1.4;
         }
 
         .radio-group {
             display: flex;
-            gap: 15px;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .radio-group label {
@@ -165,38 +413,75 @@
             cursor: pointer;
             font-weight: normal;
             font-size: 0.9rem;
+            width: 100%;
+        }
+
+        #create-view,
+        #load-view,
+        #settings-view,
+        #webcam-view {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #load-view[style*="display:none"],
+        #load-view[style*="display: none"] {
+            display: none;
+        }
+
+        #load-view .input-group {
+            gap: 10px;
+        }
+
+        #load-view .input-group + .input-group {
+            margin-top: 0;
+        }
+
+        #load-view .path-input-container {
+            margin-top: 0;
+        }
+
+        #load-view .hint {
+            display: block;
+            margin-top: 0;
         }
 
         .upload-zone {
-            border: 2px dashed rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px dashed rgba(255, 255, 255, 0.22);
+            border-radius: 8px;
+            min-height: 112px;
+            padding: 18px 16px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
+            margin-bottom: 0;
+            background: rgba(255, 255, 255, 0.025);
         }
 
         .upload-zone:hover,
         .upload-zone.dragover {
-            border-color: #00d4ff;
-            background: rgba(0, 212, 255, 0.1);
+            border-color: var(--accent);
+            background: rgba(92, 226, 205, 0.09);
         }
 
         .upload-zone svg {
-            width: 48px;
-            height: 48px;
-            margin-bottom: 12px;
-            color: #666;
-        }
-
-        .upload-zone p {
-            color: #888;
-            margin-bottom: 8px;
+            width: 34px;
+            height: 34px;
+            flex: 0 0 auto;
+            margin-bottom: 0;
+            color: var(--text-dim);
         }
 
         .upload-zone .supported {
             font-size: 0.85rem;
-            color: #666;
+            color: var(--text-dim);
+            line-height: 1.35;
         }
 
         #file-input {
@@ -205,7 +490,7 @@
 
         .preview-container {
             display: none;
-            margin-bottom: 20px;
+            margin-bottom: 0;
         }
 
         .preview-container.visible {
@@ -217,11 +502,492 @@
             width: 100%;
             border-radius: 8px;
             margin-bottom: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        .preview-info {
-            font-size: 0.85rem;
-            color: #888;
+        .imagegen-panel {
+            display: none;
+            margin: 12px 0;
+            padding: 12px;
+            border: 1px solid rgba(92, 226, 205, 0.18);
+            border-radius: 8px;
+            background: rgba(92, 226, 205, 0.055);
+        }
+
+        .imagegen-panel.visible {
+            display: block;
+        }
+
+        .imagegen-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .imagegen-select,
+        .imagegen-number,
+        .imagegen-prompt {
+            width: 100%;
+            padding: 10px 11px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.24);
+            color: #fff;
+            outline: none;
+            color-scheme: dark;
+        }
+
+        .imagegen-select {
+            appearance: none;
+            -webkit-appearance: none;
+            padding-right: 44px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23edf2f7' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 18px center;
+            background-size: 12px 7px;
+        }
+
+        .imagegen-select option,
+        .quality-select option {
+            background: #111821;
+            color: var(--text-main);
+        }
+
+        .imagegen-select option:checked,
+        .quality-select option:checked {
+            background: #1d5a5d;
+            color: #ffffff;
+        }
+
+        .imagegen-prompt {
+            resize: none;
+            min-height: 108px;
+            max-height: 170px;
+            line-height: 1.35;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(92, 226, 205, 0.62) rgba(255, 255, 255, 0.035);
+        }
+
+        .imagegen-prompt::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .imagegen-prompt::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.035);
+            border-radius: 999px;
+        }
+
+        .imagegen-prompt::-webkit-scrollbar-thumb {
+            background: rgba(92, 226, 205, 0.7);
+            border: 2px solid rgba(10, 16, 20, 0.95);
+            border-radius: 999px;
+        }
+
+        .imagegen-select:focus,
+        .imagegen-number:focus,
+        .imagegen-prompt:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(92, 226, 205, 0.12);
+        }
+
+        .imagegen-number-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .imagegen-option-row {
+            display: grid;
+            grid-column: 1 / -1;
+            grid-template-columns: minmax(0, 1fr) 72px minmax(0, 1.35fr);
+            gap: 8px;
+            align-items: center;
+        }
+
+        .imagegen-option-row .imagegen-field-label.imagegen-toggle-row {
+            min-width: 0;
+            margin: 0;
+        }
+
+        .imagegen-setting-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 96px;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .imagegen-setting-row.full {
+            grid-column: 1 / -1;
+        }
+
+        .imagegen-setting-row .imagegen-field-label {
+            margin: 0;
+        }
+
+        .imagegen-edge-picker {
+            display: grid;
+            grid-template-columns: 32px 60px 32px;
+            grid-template-rows: 32px 60px 32px;
+            gap: 5px;
+            justify-content: center;
+            align-items: stretch;
+            margin: 12px 0 4px;
+            padding: 0;
+            border: 0;
+            background: transparent;
+        }
+
+        .edge-btn {
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.045);
+            color: var(--text-muted);
+            font-weight: 750;
+            cursor: pointer;
+            transition: all 0.16s;
+            min-width: 0;
+        }
+
+        .edge-btn:hover {
+            border-color: rgba(92, 226, 205, 0.45);
+            color: var(--accent);
+        }
+
+        .edge-btn.active {
+            border-color: rgba(92, 226, 205, 0.75);
+            background: rgba(92, 226, 205, 0.16);
+            color: var(--accent);
+            box-shadow: 0 0 0 1px rgba(92, 226, 205, 0.1), inset 0 0 18px rgba(92, 226, 205, 0.08);
+        }
+
+        .edge-btn.all {
+            position: relative;
+            font-size: 0.76rem;
+            border-color: rgba(255, 255, 255, 0.13);
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.055), rgba(92, 226, 205, 0.035)),
+                rgba(0, 0, 0, 0.18);
+            color: var(--text-main);
+        }
+
+        .edge-btn.all::before {
+            content: "";
+            position: absolute;
+            inset: 9px;
+            border: 1px dashed rgba(255, 255, 255, 0.17);
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+        .edge-btn[data-imagegen-direction="top"] {
+            grid-column: 2;
+            grid-row: 1;
+            border-radius: 7px 7px 4px 4px;
+        }
+
+        .edge-btn[data-imagegen-direction="left"] {
+            grid-column: 1;
+            grid-row: 2;
+            border-radius: 7px 4px 4px 7px;
+        }
+
+        .edge-btn.all {
+            grid-column: 2;
+            grid-row: 2;
+        }
+
+        .edge-btn[data-imagegen-direction="right"] {
+            grid-column: 3;
+            grid-row: 2;
+            border-radius: 4px 7px 7px 4px;
+        }
+
+        .edge-btn[data-imagegen-direction="bottom"] {
+            grid-column: 2;
+            grid-row: 3;
+            border-radius: 4px 4px 7px 7px;
+        }
+
+        .imagegen-field-label {
+            display: block;
+            margin: 0 0 5px;
+            color: var(--text-dim);
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .imagegen-toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 0 5px;
+            color: var(--text-dim);
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .imagegen-toggle-row input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            flex: 0 0 16px;
+            accent-color: var(--accent);
+            transform: translateY(1px);
+        }
+
+        .imagegen-btn {
+            flex: 1;
+            min-width: 132px;
+            padding: 10px 12px;
+            border: 1px solid rgba(92, 226, 205, 0.35);
+            border-radius: 8px;
+            background: rgba(92, 226, 205, 0.14);
+            color: var(--accent);
+            font-weight: 650;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .imagegen-btn:hover:not(:disabled) {
+            background: rgba(92, 226, 205, 0.22);
+        }
+
+        .imagegen-btn.secondary {
+            border-color: rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.07);
+            color: var(--text-muted);
+        }
+
+        .imagegen-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .imagegen-progress {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .imagegen-progress.visible {
+            display: block;
+        }
+
+        .imagegen-progress-head {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 6px;
+        }
+
+        .imagegen-progress-track {
+            width: 100%;
+            height: 6px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .imagegen-progress-fill {
+            width: 0%;
+            height: 100%;
+            border-radius: inherit;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(90deg, var(--accent), var(--accent-warm));
+            transition: width 0.25s ease;
+        }
+
+        .imagegen-progress.running .imagegen-progress-fill::after,
+        .imagegen-progress.queued .imagegen-progress-fill::after,
+        .imagegen-progress.stopping .imagegen-progress-fill::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+            animation: imagegen-progress-sheen 1.15s linear infinite;
+        }
+
+        @keyframes imagegen-progress-sheen {
+            from {
+                transform: translateX(-100%);
+            }
+
+            to {
+                transform: translateX(100%);
+            }
+        }
+
+        .imagegen-progress-text {
+            color: var(--accent);
+            font-size: 0.78rem;
+            font-weight: 700;
+            line-height: 1.35;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .imagegen-progress.success .imagegen-progress-text {
+            color: var(--accent);
+        }
+
+        .imagegen-progress.error .imagegen-progress-text {
+            color: #fca5a5;
+        }
+
+        .imagegen-progress.error .imagegen-progress-fill {
+            background: linear-gradient(90deg, #ef4444, #f97316);
+        }
+
+        .imagegen-progress-diagnostics {
+            display: none;
+            margin-top: 7px;
+            color: #fca5a5;
+            font-size: 0.76rem;
+            line-height: 1.35;
+        }
+
+        .imagegen-progress-diagnostics.visible {
+            display: block;
+        }
+
+        .imagegen-results {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            overflow-x: auto;
+            padding-bottom: 3px;
+        }
+
+        .imagegen-candidates {
+            display: none;
+            margin: 12px 0;
+        }
+
+        .imagegen-candidates.visible {
+            display: block;
+        }
+
+        .imagegen-candidate-preview {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            overflow: hidden;
+        }
+
+        .imagegen-candidate-preview img {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: none;
+            object-fit: contain;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .imagegen-result {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 7px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 0 0 72px;
+            min-width: 72px;
+            text-align: center;
+        }
+
+        .imagegen-result:hover,
+        .imagegen-result.selected {
+            border-color: rgba(92, 226, 205, 0.65);
+            background: rgba(92, 226, 205, 0.12);
+        }
+
+        .imagegen-result img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 6px;
+            margin: 0;
+            border: 0;
+            background: rgba(0, 0, 0, 0.24);
+        }
+
+        .selected-file-list {
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+            gap: 8px;
+            margin: 10px 0 12px;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .selected-file-list.image-preview-list {
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 0 0 12px;
+            max-height: none;
+            overflow: visible;
+        }
+
+        .selected-file-item {
+            min-width: 0;
+            padding: 7px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            font-size: 0.8rem;
+            color: #ccc;
+        }
+
+        .selected-file-list.image-preview-list .selected-file-item {
+            padding: 0;
+            border: 0;
+            background: transparent;
+        }
+
+        .selected-file-thumb {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            display: block;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.35);
+            margin-bottom: 6px;
+        }
+
+        .selected-file-list.image-preview-list .selected-file-thumb {
+            height: auto;
+            max-height: none;
+            aspect-ratio: auto;
+            object-fit: contain;
+            margin-bottom: 0;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .selected-file-name {
+            display: block;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .selected-file-size {
+            display: block;
+            margin-top: 2px;
+            color: #777;
+            font-size: 0.72rem;
+        }
+
+        .performance-options {
+            margin-top: 10px;
+            margin-bottom: 0;
         }
 
         .reset-app-btn {
@@ -229,7 +995,7 @@
             padding: 20px;
             background: rgba(239, 68, 68, 0.15);
             border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 12px;
+            border-radius: 8px;
             color: #f87171;
             font-size: 1.1rem;
             font-weight: 600;
@@ -247,29 +1013,15 @@
             transform: translateY(-2px);
         }
 
-        /* NEW GPU WARNING STYLE */
-        .gpu-warning {
-            margin-top: 15px;
-            font-size: 0.85rem;
-            color: #fbbf24;
-            /* Amber */
-            background: rgba(0, 0, 0, 0.2);
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid rgba(251, 191, 36, 0.3);
-            line-height: 1.4;
-            display: none;
-        }
-
         .generate-btn {
             width: 100%;
             padding: 16px;
-            background: linear-gradient(135deg, #00d4ff, #7b2ff7);
+            background: linear-gradient(135deg, var(--accent), var(--accent-strong));
             border: none;
-            border-radius: 12px;
-            color: white;
+            border-radius: 8px;
+            color: #061114;
             font-size: 1.1rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
@@ -279,8 +1031,7 @@
         }
 
         .generate-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+            box-shadow: 0 10px 22px rgba(43, 182, 255, 0.2);
         }
 
         .generate-btn:disabled {
@@ -291,8 +1042,8 @@
         .generate-btn .spinner {
             width: 20px;
             height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
+            border: 2px solid rgba(6, 17, 20, 0.28);
+            border-top-color: #061114;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             display: none;
@@ -304,6 +1055,36 @@
 
         .generate-btn.loading .btn-text {
             display: none;
+        }
+
+        .create-action-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 10px;
+            align-items: stretch;
+        }
+
+        .clear-selection-btn {
+            min-width: 92px;
+            padding: 0 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .clear-selection-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.13);
+            border-color: rgba(255, 255, 255, 0.24);
+        }
+
+        .clear-selection-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
         }
 
         @keyframes spin {
@@ -318,7 +1099,7 @@
             padding: 12px;
             background: rgba(239, 68, 68, 0.8);
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             color: white;
             font-size: 1rem;
             font-weight: 600;
@@ -340,10 +1121,22 @@
         }
 
         .status-message {
-            padding: 12px;
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 12000;
+            width: fit-content;
+            max-width: min(420px, calc(100vw - 48px));
+            padding: 12px 14px;
             border-radius: 8px;
             font-size: 0.9rem;
+            line-height: 1.4;
             display: none;
+            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.36);
+            backdrop-filter: blur(12px);
+            pointer-events: none;
+            white-space: normal;
+            overflow-wrap: anywhere;
         }
 
         .status-message.visible {
@@ -351,63 +1144,269 @@
         }
 
         .status-message.success {
-            background: rgba(34, 197, 94, 0.2);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-            color: #22c55e;
+            background: rgba(82, 210, 115, 0.16);
+            border: 1px solid rgba(82, 210, 115, 0.28);
+            color: var(--success);
         }
 
         .status-message.error {
             background: rgba(239, 68, 68, 0.2);
             border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #ef4444;
+            color: var(--danger);
         }
 
         .status-message.info {
-            background: rgba(0, 212, 255, 0.2);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            color: #00d4ff;
+            background: rgba(92, 226, 205, 0.15);
+            border: 1px solid rgba(92, 226, 205, 0.28);
+            color: var(--accent);
         }
 
-        .download-section {
-            display: none;
-            margin-top: 20px;
+        .library-section {
+            background: var(--panel-bg);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--panel-border);
+            box-shadow: var(--shadow-panel);
+            min-height: 0;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(14px);
         }
 
-        .download-section.visible {
+        .library-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .library-header h2 {
+            margin: 0;
+            color: #f6f8fb;
+            font-size: 1.2rem;
+            font-weight: 650;
+            letter-spacing: 0;
+        }
+
+        .library-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .library-refresh {
+            width: 32px;
+            height: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.07);
+            color: #cbd5e1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .library-refresh:hover {
+            border-color: rgba(92, 226, 205, 0.5);
+            color: var(--accent);
+        }
+
+        .library-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 15px;
+            align-content: start;
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .library-empty {
+            padding: 14px;
+            border: 1px dashed rgba(255, 255, 255, 0.14);
+            border-radius: 8px;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .ply-card {
+            display: grid;
+            grid-template-columns: 100px minmax(0, 1fr);
+            align-items: stretch;
+            gap: 12px;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s, transform 0.2s;
+            position: relative;
+        }
+
+        .ply-card:hover {
+            border-color: rgba(92, 226, 205, 0.44);
+            background: rgba(92, 226, 205, 0.07);
+        }
+
+        .ply-thumb-frame {
+            width: 100px;
+            height: 100%;
+            min-height: 100px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            align-self: stretch;
+        }
+
+        .ply-thumb,
+        .ply-thumb-placeholder {
+            width: 100%;
+            height: 100%;
+        }
+
+        .ply-thumb {
+            object-fit: cover;
             display: block;
         }
 
-        .download-btn {
-            width: 100%;
-            padding: 12px;
-            background: rgba(34, 197, 94, 0.2);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-            border-radius: 8px;
-            color: #22c55e;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        .ply-thumb-placeholder {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            text-decoration: none;
+            color: #64748b;
+            font-size: 0.72rem;
+            text-align: center;
+            line-height: 1.2;
+            padding: 8px;
         }
 
-        .download-btn:hover {
-            background: rgba(34, 197, 94, 0.3);
+        .ply-card-body {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 8px;
+            padding: 0;
+        }
+
+        .ply-card-title {
+            color: #f8fafc;
+            font-size: 0.82rem;
+            line-height: 1.35;
+            overflow-wrap: anywhere;
+        }
+
+        .ply-card-meta {
+            color: var(--text-dim);
+            font-size: 0.82rem;
+            line-height: 1.35;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .ply-card-meta-line,
+        .ply-card-date {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .ply-card-date {
+            color: #7f8ba0;
+        }
+
+        .ply-card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: auto;
+        }
+
+        .ply-action {
+            min-width: 0;
+            height: 28px;
+            padding: 0 10px;
+            border-radius: 7px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.07);
+            color: #dbeafe;
+            cursor: pointer;
+            font-size: 0.75rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ply-action:hover {
+            border-color: rgba(92, 226, 205, 0.45);
+            color: var(--accent);
+        }
+
+        .ply-action.danger {
+            color: #fecaca;
+            border-color: rgba(239, 68, 68, 0.22);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .ply-action.danger:hover {
+            color: #ffffff;
+            border-color: rgba(239, 68, 68, 0.62);
+            background: rgba(239, 68, 68, 0.32);
+        }
+
+        .ply-action:disabled {
+            cursor: wait;
+            opacity: 0.58;
+        }
+
+        @media (max-width: 760px) {
+            .library-list {
+                grid-template-columns: 1fr;
+            }
         }
 
         .viewer-container {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.36);
+            border-radius: 8px;
+            border: 1px solid var(--panel-border);
+            box-shadow: var(--shadow-panel);
             overflow: hidden;
             position: relative;
-            min-height: 600px;
+            min-height: 0;
+            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+
+        body.home-mode .viewer-container {
+            display: none;
+        }
+
+        body.viewer-mode .main-content {
+            display: block;
+            height: 100%;
+        }
+
+        body.viewer-mode .sidebar,
+        body.viewer-mode .library-section {
+            display: none;
+        }
+
+        body.viewer-mode .viewer-container {
+            height: 100%;
+            min-height: 0;
         }
 
         .viewer-container:fullscreen,
@@ -424,7 +1423,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
-            color: #666;
+            color: var(--text-dim);
             z-index: 5;
         }
 
@@ -454,15 +1453,64 @@
             display: block;
         }
 
+        .viewer-nav {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .back-home-btn,
+        .viewer-info-btn {
+            height: 36px;
+            padding: 0 12px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 6px;
+            background: rgba(17, 20, 28, 0.82);
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            font-family: inherit;
+            line-height: 1;
+            backdrop-filter: blur(12px);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .viewer-info-btn {
+            width: 36px;
+            padding: 0;
+        }
+
+        .back-home-btn:hover,
+        .viewer-info-btn:hover,
+        .viewer-info-btn.active {
+            border-color: rgba(92, 226, 205, 0.5);
+            color: var(--accent);
+        }
+
+        .back-home-btn svg,
+        .viewer-info-btn svg {
+            width: 18px;
+            height: 18px;
+            flex: 0 0 auto;
+        }
+
         /* VIDEO CONTROLS */
         .video-controls {
             position: absolute;
             bottom: 70px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(17, 20, 28, 0.9);
             padding: 10px 20px;
-            border-radius: 20px;
+            border-radius: 8px;
             display: none;
             flex-direction: column;
             gap: 5px;
@@ -470,6 +1518,7 @@
             max-width: 600px;
             z-index: 15;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(14px);
         }
 
         .video-controls.visible {
@@ -486,7 +1535,7 @@
             align-items: center;
             justify-content: center;
             gap: 15px;
-            color: #00d4ff;
+            color: var(--accent);
         }
 
         .video-btn {
@@ -504,12 +1553,12 @@
         }
 
         .video-btn:hover {
-            color: #00d4ff;
+            color: var(--accent);
         }
 
         .video-info {
             font-size: 0.8rem;
-            color: #aaa;
+            color: var(--text-muted);
             text-align: center;
         }
 
@@ -518,15 +1567,41 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.05)),
+                rgba(14, 17, 24, 0.72);
             padding: 12px 20px;
             border-radius: 8px;
             font-size: 0.85rem;
-            color: #aaa;
+            color: var(--text-muted);
             display: none;
             text-align: center;
             max-width: 90%;
             z-index: 10;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.26);
+            box-shadow:
+                0 16px 48px rgba(0, 0, 0, 0.36),
+                inset 0 1px 0 rgba(255, 255, 255, 0.34),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(22px) saturate(170%);
+            -webkit-backdrop-filter: blur(22px) saturate(170%);
+        }
+
+        .viewer-controls::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 18% 0%, rgba(92, 226, 205, 0.26), transparent 34%),
+                radial-gradient(circle at 82% 100%, rgba(96, 165, 250, 0.22), transparent 38%);
+            opacity: 0.9;
+        }
+
+        .viewer-controls>* {
+            position: relative;
+            z-index: 1;
         }
 
         .viewer-controls.visible {
@@ -540,7 +1615,7 @@
         .viewer-controls .keys {
             margin-top: 6px;
             font-size: 0.8rem;
-            color: #666;
+            color: inherit;
         }
 
         .progress-bar {
@@ -568,7 +1643,7 @@
 
         .progress-bar-fill {
             height: 100%;
-            background: linear-gradient(90deg, #00d4ff, #7b2ff7);
+            background: linear-gradient(90deg, var(--accent), var(--accent-warm));
             border-radius: 2px;
             width: 0%;
             transition: width 0.3s ease;
@@ -576,22 +1651,55 @@
 
         .progress-bar-text {
             font-size: 0.85rem;
-            color: #888;
+            color: var(--text-muted);
         }
 
         .device-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            background: rgba(0, 212, 255, 0.2);
-            border-radius: 20px;
-            font-size: 0.8rem;
-            color: #00d4ff;
-            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 22px;
+            padding: 0 8px;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            color: #cbd5e1;
+            font-size: 0.76rem;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: 0;
         }
 
         .device-badge.cuda {
-            background: rgba(118, 185, 0, 0.2);
-            color: #76b900;
+            color: #7dd3fc;
+        }
+
+        .device-badge.cpu {
+            color: #cbd5e1;
+        }
+
+        .device-badge.mps {
+            color: #c4b5fd;
+        }
+
+        .device-control-value {
+            width: 100%;
+            min-height: 42px;
+            padding: 0 12px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.24);
+            display: flex;
+            align-items: center;
+        }
+
+        .device-control-value .device-badge {
+            min-height: auto;
+            padding: 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: inherit;
+            line-height: 1;
         }
 
         .top-controls {
@@ -608,21 +1716,34 @@
         }
 
         .control-btn {
-            padding: 8px 12px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            height: 36px;
+            padding: 0 12px;
+            background: rgba(17, 20, 28, 0.82);
+            border: 1px solid rgba(255, 255, 255, 0.14);
             border-radius: 6px;
             color: #fff;
             cursor: pointer;
             font-size: 0.85rem;
+            font-weight: 600;
+            font-family: inherit;
+            line-height: 1;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 8px;
+            white-space: nowrap;
         }
 
         .control-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(92, 226, 205, 0.14);
+            border-color: rgba(92, 226, 205, 0.42);
+        }
+
+        .control-btn.active {
+            background: rgba(92, 226, 205, 0.22);
+            border-color: rgba(92, 226, 205, 0.5);
+            color: var(--accent);
         }
 
         .control-btn svg {
@@ -631,53 +1752,48 @@
         }
 
         footer {
+            position: absolute;
+            left: 20px;
+            right: 20px;
+            bottom: 10px;
             text-align: center;
-            padding: 30px;
-            color: #666;
+            padding: 0;
+            color: var(--text-dim);
             font-size: 0.9rem;
+            line-height: 15px;
         }
 
-        footer a {
-            color: #00d4ff;
+        .footer-content {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .footer-credit {
+            color: var(--text-dim);
             text-decoration: none;
+            font-size: 0.82rem;
+            line-height: 15px;
+        }
+
+        .footer-credit:hover {
+            color: var(--accent);
         }
 
         @media (max-width: 900px) {
             .main-content {
                 grid-template-columns: 1fr;
             }
-
-            .viewer-container {
-                min-height: 400px;
-            }
-        }
-
-        .coffee-btn {
-            background-color: #77dd77;
-            color: white;
-            border-radius: 30px;
-            padding: 10px 20px;
-            display: inline-block;
-            text-decoration: none;
-            font-family: sans-serif;
-            font-weight: bold;
-            font-size: 12px;
-            transition: transform 0.2s, background-color 0.2s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .coffee-btn:hover {
-            background-color: #66c266;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
         }
 
         /* New Select Style */
         .quality-select {
             width: 100%;
             padding: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.26);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             color: white;
             border-radius: 8px;
             outline: none;
@@ -685,11 +1801,13 @@
         }
 
         .quality-select:focus {
-            border-color: #00d4ff;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(92, 226, 205, 0.12);
         }
 
         .quality-select option {
-            background: #1a1a2e;
+            background: #111821;
+            color: var(--text-main);
         }
 
         .checkbox-container {
@@ -703,8 +1821,34 @@
         }
 
         .checkbox-container input[type="checkbox"] {
-            transform: scale(1.2);
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            flex: 0 0 16px;
+            accent-color: var(--accent);
+            transform: translateY(1px);
             cursor: pointer;
+        }
+
+        .sbs-toggle-label {
+            cursor: pointer;
+            color: var(--accent);
+        }
+
+        .sbs-settings-panel {
+            display: none;
+            padding-left: 20px;
+            border-left: 2px solid var(--accent);
+            margin-top: 10px;
+        }
+
+        .webcam-video-frame {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         /* SBS Preview Modal */
@@ -813,7 +1957,7 @@
         }
 
         .sbs-preview-hint {
-            color: #888;
+            color: var(--text-muted);
             margin-top: 15px;
             font-size: 0.9rem;
         }
@@ -821,10 +1965,10 @@
         .sbs-preview-btn {
             width: 100%;
             padding: 12px;
-            background: rgba(0, 212, 255, 0.15);
-            border: 1px solid rgba(0, 212, 255, 0.4);
+            background: rgba(92, 226, 205, 0.14);
+            border: 1px solid rgba(92, 226, 205, 0.38);
             border-radius: 8px;
-            color: #00d4ff;
+            color: var(--accent);
             font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
@@ -837,7 +1981,7 @@
         }
 
         .sbs-preview-btn:hover {
-            background: rgba(0, 212, 255, 0.25);
+            background: rgba(92, 226, 205, 0.22);
         }
 
         .sbs-preview-btn:disabled {
@@ -848,8 +1992,8 @@
         .sbs-preview-btn .spinner {
             width: 16px;
             height: 16px;
-            border: 2px solid rgba(0, 212, 255, 0.3);
-            border-top-color: #00d4ff;
+            border: 2px solid rgba(92, 226, 205, 0.3);
+            border-top-color: var(--accent);
             border-radius: 50%;
             animation: spin 1s linear infinite;
             display: none;
@@ -865,33 +2009,34 @@
     </style>
 </head>
 
-<body>
+<body class="home-mode">
+    <script>
+        if (window.sharpDesktop && window.sharpDesktop.isDesktop) {
+            document.documentElement.classList.add('desktop-app');
+            document.body.classList.add('desktop-app');
+        }
+    </script>
+    <div class="desktop-titlebar" id="desktop-titlebar" aria-label="Application window">
+        <div class="desktop-titlebar-left">
+            <div class="desktop-titlebar-title">ML-SHARP Desktop</div>
+        </div>
+        <div class="window-controls" aria-label="Window controls">
+            <button class="window-control" id="window-minimize" type="button" title="Minimize"
+                aria-label="Minimize"></button>
+            <button class="window-control" id="window-maximize" type="button" title="Maximize"
+                aria-label="Maximize"></button>
+            <button class="window-control close" id="window-close" type="button" title="Close"
+                aria-label="Close"></button>
+        </div>
+    </div>
     <div class="container">
-        <header>
-            <h1>ml-sharp - iVideoGameBoss</h1>
-            <a href="https://github.com/iVideoGameBoss/ml-sharp" target="_blank">Single-Image/Video to 3D Gaussian Splat
-                Generator</a>
-            <div id="device-info"></div>
-            <br>
-            <div class="coffee-container">
-                <a href="https://buymeacoffee.com/ivideogameboss" target="_blank" class="coffee-btn">BuyMeACoffee</a>
-            </div>
-        </header>
-
         <div class="main-content">
             <div class="sidebar">
                 <div class="mode-tabs">
-                    <button class="mode-btn active" data-mode="create" onclick="setMode('create')">Create New</button>
+                    <button class="mode-btn active" data-mode="create" onclick="setMode('create')">Create</button>
+                    <button class="mode-btn" data-mode="load" onclick="setMode('load')">Import</button>
                     <button class="mode-btn" data-mode="webcam" onclick="setMode('webcam')">Webcam</button>
-                    <button class="mode-btn" data-mode="load" onclick="setMode('load')">Load Existing</button>
-                </div>
-
-                <div class="input-group" style="margin-bottom:10px; margin-top:10px;">
-                    <label>Performance Mode:</label>
-                    <select id="quality-selector" class="quality-select">
-                        <option value="fast" selected>Fast (FP16/Half-Precision) - Best for 2060/Webcam</option>
-                        <option value="balanced">High Quality (FP32/Full-Precision)</option>
-                    </select>
+                    <button class="mode-btn" data-mode="settings" onclick="setMode('settings')">Settings</button>
                 </div>
 
                 <!-- Create View -->
@@ -901,15 +2046,88 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        <p>Drop an image or video here</p>
                         <span class="supported">Images (PNG, JPG) & Videos (MP4, MOV)</span>
-                        <input type="file" id="file-input" accept="image/*,video/*">
+                        <input type="file" id="file-input" accept="image/*,video/*" multiple>
                     </div>
 
                     <div class="preview-container" id="preview-container">
                         <img id="preview-image" src="" alt="Preview" style="display:none;">
                         <video id="preview-video" controls style="display:none;"></video>
-                        <div class="preview-info" id="preview-info"></div>
+                        <div class="selected-file-list" id="selected-files-list"></div>
+
+                        <div class="imagegen-panel" id="imagegen-panel">
+                            <div class="input-group">
+                                <div class="imagegen-number-row">
+                                    <div class="imagegen-option-row">
+                                        <label class="imagegen-field-label imagegen-toggle-row" for="imagegen-guard-band-enabled">
+                                            <input id="imagegen-guard-band-enabled" type="checkbox" checked>
+                                            Guard Band (%)
+                                        </label>
+                                        <input id="imagegen-padding" class="imagegen-number" type="number" min="1" max="50" step="1" value="15">
+                                        <label class="imagegen-field-label imagegen-toggle-row" for="imagegen-preserve-details-enabled">
+                                            <input id="imagegen-preserve-details-enabled" type="checkbox" checked>
+                                            Protect Original Image
+                                        </label>
+                                    </div>
+                                    <div class="imagegen-setting-row">
+                                        <label class="imagegen-field-label" for="imagegen-variants">Image Count</label>
+                                        <input id="imagegen-variants" class="imagegen-number" type="number" min="1" max="8" step="1" value="1">
+                                    </div>
+                                    <div class="imagegen-setting-row">
+                                        <label class="imagegen-field-label" for="imagegen-parallel-agents">Parallel Agent</label>
+                                        <input id="imagegen-parallel-agents" class="imagegen-number" type="number" min="1" max="1" step="1" value="1">
+                                    </div>
+                                </div>
+                                <div class="imagegen-edge-picker" id="imagegen-edge-picker" aria-label="Extension edges">
+                                    <button class="edge-btn active" type="button" data-imagegen-direction="top" aria-pressed="true" title="Extend top">&uarr;</button>
+                                    <button class="edge-btn active" type="button" data-imagegen-direction="left" aria-pressed="true" title="Extend left">&larr;</button>
+                                    <button class="edge-btn all active" id="imagegen-direction-all" type="button" aria-pressed="true" title="Extend all sides">All</button>
+                                    <button class="edge-btn active" type="button" data-imagegen-direction="right" aria-pressed="true" title="Extend right">&rarr;</button>
+                                    <button class="edge-btn active" type="button" data-imagegen-direction="bottom" aria-pressed="true" title="Extend bottom">&darr;</button>
+                                </div>
+                                <select id="imagegen-aspect" class="imagegen-select">
+                                    <option value="keep" selected>Keep expanded shape</option>
+                                    <option value="16:9">Prefer 16:9</option>
+                                    <option value="4:3">Prefer 4:3</option>
+                                    <option value="1:1">Prefer 1:1</option>
+                                    <option value="9:16">Prefer 9:16</option>
+                                </select>
+                                <textarea id="imagegen-prompt" class="imagegen-prompt"
+                                    placeholder="Optional User Prompt..."></textarea>
+                            </div>
+                            <div class="imagegen-row" style="margin-top:10px;">
+                                <button class="imagegen-btn" id="imagegen-start-btn" type="button">Extend Image</button>
+                                <button class="imagegen-btn secondary" id="imagegen-stop-btn" type="button" disabled>Stop</button>
+                            </div>
+                            <div class="imagegen-progress" id="imagegen-progress" role="status" aria-live="polite">
+                                <div class="imagegen-progress-head">
+                                    <div class="imagegen-progress-text" id="imagegen-progress-text">0%</div>
+                                </div>
+                                <div class="imagegen-progress-track">
+                                    <div class="imagegen-progress-fill" id="imagegen-progress-fill"></div>
+                                </div>
+                                <div class="imagegen-progress-diagnostics" id="imagegen-progress-diagnostics"></div>
+                            </div>
+                        </div>
+                        <div class="imagegen-candidates" id="imagegen-candidates">
+                            <div class="imagegen-candidate-preview" id="imagegen-candidate-preview"></div>
+                            <div class="imagegen-results" id="imagegen-results"></div>
+                        </div>
+
+                        <div class="input-group device-control">
+                            <label>Compute Device:</label>
+                            <div class="device-control-value" id="device-info">
+                                <span class="device-badge cpu">Checking...</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group performance-options">
+                            <label>Performance Mode:</label>
+                            <select id="quality-selector" class="quality-select">
+                                <option value="fast">Fast (FP16/Half-Precision) - Best for 2060/Webcam</option>
+                                <option value="balanced" selected>High Quality (FP32/Full-Precision)</option>
+                            </select>
+                        </div>
 
                         <!-- Video Options -->
                         <div id="video-options" style="display:none; margin-top:10px;">
@@ -929,13 +2147,12 @@
 
                             <div class="checkbox-container">
                                 <input type="checkbox" id="sbs-toggle">
-                                <label for="sbs-toggle" style="cursor:pointer; color: #00d4ff;">Generate SBS 3D Movie
+                                <label for="sbs-toggle" class="sbs-toggle-label">Generate SBS Movie
                                     (Requires CUDA)</label>
                             </div>
 
                             <!-- New Settings Container -->
-                            <div id="sbs-settings"
-                                style="display:none; padding-left: 20px; border-left: 2px solid #00d4ff; margin-top: 10px;">
+                            <div id="sbs-settings" class="sbs-settings-panel">
 
                                 <!-- Opacity Threshold -->
                                 <div class="input-group" style="margin-bottom: 8px;">
@@ -1001,23 +2218,26 @@
 
                                 <button class="sbs-preview-btn" id="sbs-preview-btn" type="button">
                                     <span class="spinner"></span>
-                                    <span class="btn-text">👁️ Preview SBS Frame</span>
+                                    <span class="btn-text">👁️ Generate SBS Preview</span>
                                 </button>
                                 <small class="hint" style="display:block; margin-top:5px;">
-                                    Scrub the video above, then click to preview the 3D effect with current settings.
+                                    Scrub the video above, then generate an SBS Preview with the current settings.
                                 </small>
                             </div>
 
                             <small class="hint" style="display:block; margin-top:10px; color:#888;">
-                                Creates a 3840x1080 SBS video with audio. Slow processing.
+                                Creates a 3840 × 1080 SBS Movie with audio. Processing may take a while.
                             </small>
                         </div>
                     </div>
 
-                    <button class="generate-btn" id="generate-btn" disabled>
-                        <span class="spinner"></span>
-                        <span class="btn-text">Generate 3D Gaussian Splat</span>
-                    </button>
+                    <div class="create-action-row">
+                        <button class="generate-btn" id="generate-btn" disabled>
+                            <span class="spinner"></span>
+                            <span class="btn-text">Generate</span>
+                        </button>
+                        <button class="clear-selection-btn" id="clear-selection-btn" type="button" disabled>Clear</button>
+                    </div>
 
                     <button class="stop-btn" id="stop-btn">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24"
@@ -1025,14 +2245,13 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                        Stop Processing
+                        Stop Generation
                     </button>
                 </div>
 
                 <!-- Webcam View -->
                 <div id="webcam-view" style="display:none;">
-                    <div class="video-container"
-                        style="position: relative; border-radius: 12px; overflow: hidden; background: #000; margin-bottom: 20px;">
+                    <div class="video-container webcam-video-frame">
                         <video id="webcam-feed" autoplay playsinline
                             style="width: 100%; height: auto; display: block;"></video>
                         <canvas id="webcam-capture-canvas" style="display:none;"></canvas>
@@ -1042,7 +2261,7 @@
                         </div>
                     </div>
 
-                    <div class="input-group" style="margin-bottom: 20px;">
+                    <div class="input-group">
                         <button class="generate-btn" id="start-camera-btn"
                             style="background: rgba(255, 255, 255, 0.1);">
                             Start Camera
@@ -1051,14 +2270,14 @@
 
                     <div class="input-group" id="webcam-controls" style="display:none;">
                         <button class="generate-btn" id="capture-btn">
-                            <span class="btn-text">📸 Capture & Generate 3D</span>
+                            <span class="btn-text">📸 Capture & Generate PLY</span>
                             <span class="spinner"></span>
                         </button>
                         <!-- REMOVED Auto-Refresh Checkbox -->
                     </div>
                 </div>
 
-                <!-- Load Existing View -->
+                <!-- Import View -->
                 <div id="load-view" style="display:none;">
                     <div class="input-group">
                         <label>Content Type:</label>
@@ -1066,43 +2285,34 @@
                             <label><input type="radio" name="load-mode" value="single" checked
                                     onchange="toggleLoadMode('single')"> Single PLY File</label>
                             <label><input type="radio" name="load-mode" value="video"
-                                    onchange="toggleLoadMode('video')"> Video Sequence (Folder)</label>
+                                    onchange="toggleLoadMode('video')"> PLY Sequence (Folder)</label>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label>Local Path or Browse:</label>
+                        <label>Browse:</label>
                         <div class="path-input-container">
-                            <input type="text" id="local-path-input" placeholder="Path on server (optional)">
+                            <input type="text" id="local-path-input" placeholder="No File Selected..." readonly aria-readonly="true">
                             <button class="browse-btn" id="browse-btn">Browse...</button>
                         </div>
-                        <small class="hint" id="path-hint">
-                            Use <strong>Browse</strong> to select files/folders directly (Recommended for lag-free
-                            playback), <br>
-                            or type absolute path if files are on the server machine.
-                        </small>
                     </div>
-
-                    <button class="generate-btn" id="load-local-btn">
-                        <span class="spinner"></span>
-                        <span class="btn-text">Load Viewer</span>
-                    </button>
 
                     <input type="file" id="local-file-picker" accept=".ply" style="display:none;">
                     <input type="file" id="local-folder-picker" webkitdirectory directory style="display:none;">
                 </div>
 
-                <div class="status-message" id="status-message"></div>
-
-                <div class="download-section" id="download-section">
-                    <a href="#" class="download-btn" id="download-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        Download File
-                    </a>
+                <!-- Settings View -->
+                <div id="settings-view" style="display:none;">
+                    <div class="input-group">
+                        <label>Completed Job Records</label>
+                        <button class="generate-btn" id="clear-memory-cache-btn" type="button">
+                            <span class="btn-text">Clear</span>
+                            <span class="spinner"></span>
+                        </button>
+                        <small class="hint" style="display:block; margin-top:8px; color:#888;">
+                            Clears completed, stopped, and failed job records from memory only. Output files and logs stay on disk.
+                        </small>
+                    </div>
                 </div>
 
                 <button class="reset-app-btn" id="reset-app-btn">
@@ -1114,15 +2324,48 @@
                     Reset / Start Over
                 </button>
 
-                <!-- STATIC GPU WARNING MESSAGE -->
-                <div id="gpu-warning" class="gpu-warning">
-                    Loading frames into GPU memory. Please be patient. You may see a black screen while the first frames
-                    initialize. When loaded, you will see the first frame. It takes time. If you don't have enough
-                    memory to load all files then nothing will happen.
+            </div>
+
+            <div class="library-section" id="library-section">
+                <div class="library-header">
+                    <h2 id="library-title">Library</h2>
+                    <div class="library-actions">
+                        <button class="library-refresh" id="library-refresh-btn" title="Refresh Library">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 11a8.1 8.1 0 00-15.5-2M4 5v4h4m-4 4a8.1 8.1 0 0015.5 2M20 19v-4h-4" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="library-list" id="library-list">
+                    <div class="library-empty">Loading Library...</div>
                 </div>
             </div>
 
             <div class="viewer-container" id="viewer-container">
+                <div class="viewer-nav">
+                    <button class="back-home-btn" id="back-home-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            aria-hidden="true">
+                            <path d="M19 12H5" />
+                            <path d="M12 19l-7-7 7-7" />
+                        </svg>
+                        Back
+                    </button>
+                    <button class="viewer-info-btn" id="viewer-info-btn" type="button" title="Controls"
+                        aria-label="Toggle controls information" aria-expanded="false">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            aria-hidden="true">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M12 16v-4" />
+                            <path d="M12 8h.01" />
+                        </svg>
+                    </button>
+                </div>
                 <div class="viewer-placeholder" id="viewer-placeholder">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
@@ -1141,31 +2384,51 @@
                 <canvas id="splat-canvas"></canvas>
 
                 <div class="top-controls" id="top-controls">
-                    <button class="control-btn" id="sbs-btn" title="SBS VR Mode (Side-by-Side)">
+                    <button class="control-btn" id="sbs-btn" title="SBS View (Side-by-Side)">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <!-- Custom goggles icon approximation -->
                             <circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="2" />
                             <circle cx="18" cy="12" r="3" stroke="currentColor" stroke-width="2" />
                             <path d="M9 12h6" stroke="currentColor" stroke-width="2" />
                         </svg>
-                        &nbsp;SBS Full Screen
+                        SBS View
                     </button>
                     <button class="control-btn" id="reset-camera-btn" title="Reset Camera">Reset Camera</button>
                     <button class="control-btn" id="fullscreen-btn" title="Toggle Fullscreen">
                         <svg id="icon-expand" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 4l-5-5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9 4 4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h5" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9 20 4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 4h-5" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 4v5" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 15 4 20" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 20h5" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 20v-5" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15 20 20" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 20h-5" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 20v-5" />
                         </svg>
                         <svg id="icon-compress" style="display:none;" xmlns="http://www.w3.org/2000/svg" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 20v-6h-6m12 0v6h6m-6-14v-6h6m-12 0v6h-6" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4 9 9" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9H4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 4 15 9" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9h5" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9V4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 20 9 15" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 15H4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 15v5" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 20 15 15" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15h5" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15v5" />
                         </svg>
                     </button>
                 </div>
 
-                <!-- Video Sequence Controls -->
+                <!-- PLY Sequence Controls -->
                 <div class="video-controls" id="video-controls">
                     <input type="range" class="video-scrubber" id="video-scrubber" min="0" value="0" step="1">
                     <div class="video-buttons">
@@ -1175,17 +2438,22 @@
                 </div>
 
                 <div class="viewer-controls" id="viewer-controls">
-                    <strong>Controls:</strong> Drag to look around | Scroll to adjust speed
-                    <div class="keys">W/S: forward/back | A/D: left/right | Q/E: up/down</div>
+                    <div>Scroll: Move Forward/Back | F: Fullscreen | R: Reset Camera | Esc: Back</div>
+                    <div class="keys">W/S: Move Up/Down | A/D: Move Left/Right | Q/E: Move Speed +/-</div>
                 </div>
             </div>
         </div>
 
         <footer>
-            <p>Powered by <a href="https://github.com/apple/ml-sharp" target="_blank">SHARP</a> - Single-image
-                High-fidelity Avatar Reconstruction via Photorealistic rendering</p>
+            <div class="footer-content">
+                <a class="footer-credit" href="https://github.com/apple/ml-sharp" target="_blank">
+                    Powered by SHARP
+                </a>
+            </div>
         </footer>
     </div>
+
+    <div class="status-message" id="status-message"></div>
 
     <!-- SBS Preview Fullscreen Modal -->
     <div class="sbs-preview-modal" id="sbs-preview-modal">
@@ -1196,24 +2464,30 @@
     </div>
 
     <!-- Gaussian Splat Viewer -->
-    <script src="/static/gaussian-splat-viewer.js?v=13"></script>
+    <script src="/static/gaussian-splat-viewer.js?v=23"></script>
 
     <script>
         // Global state
         let selectedFile = null;
+        let selectedFiles = [];
         let isVideoMode = false;
         let activeJobId = null;
         let statusPollInterval = null;
-        let lastLoadedFrameUrl = null;
-
-        // Video frame estimation
-        let videoTotalFrames = 0;
-        let videoFps = 30;
-        let videoFileName = '';
+        let stopRequested = false;
+        let selectedPreviewUrls = [];
+        let statusToastTimer = null;
+        let imagegenJobId = null;
+        let imagegenPollInterval = null;
+        let imagegenOutputReady = false;
+        let imagegenOutputs = [];
+        let imagegenRenderedOutputCount = 0;
+        let imagegenSelectedFilename = null;
+        let imagegenDirections = new Set(['top', 'right', 'bottom', 'left']);
+        let imagegenTargetCount = 1;
+        let imagegenAgentTotal = 1;
+        let imagegenCompletedCount = 0;
 
         let videoData = {
-            plyFiles: [],
-            baseUrl: "",
             currentFrame: 0,
             isPlaying: false,
             fps: 30,
@@ -1221,32 +2495,36 @@
             blobUrls: []
         };
         let viewer = null;
+        const deletingLibraryItems = new Set();
 
         // DOM Elements
         const createView = document.getElementById('create-view');
         const webcamView = document.getElementById('webcam-view');
         const loadView = document.getElementById('load-view');
-        const loadLocalBtn = document.getElementById('load-local-btn');
+        const settingsView = document.getElementById('settings-view');
         const localPathInput = document.getElementById('local-path-input');
         const browseBtn = document.getElementById('browse-btn');
         const localFilePicker = document.getElementById('local-file-picker');
         const localFolderPicker = document.getElementById('local-folder-picker');
-        const pathHint = document.getElementById('path-hint');
         const uploadZone = document.getElementById('upload-zone');
         const fileInput = document.getElementById('file-input');
         const previewContainer = document.getElementById('preview-container');
         const previewImage = document.getElementById('preview-image');
         const previewVideo = document.getElementById('preview-video');
-        const previewInfo = document.getElementById('preview-info');
+        const selectedFilesList = document.getElementById('selected-files-list');
         const generateBtn = document.getElementById('generate-btn');
+        const clearSelectionBtn = document.getElementById('clear-selection-btn');
+        const clearMemoryCacheBtn = document.getElementById('clear-memory-cache-btn');
         const stopBtn = document.getElementById('stop-btn');
+        const stopBtnContent = stopBtn.innerHTML;
         const statusMessage = document.getElementById('status-message');
-        const downloadSection = document.getElementById('download-section');
-        const downloadBtn = document.getElementById('download-btn');
+        const libraryList = document.getElementById('library-list');
+        const libraryRefreshBtn = document.getElementById('library-refresh-btn');
         const viewerPlaceholder = document.getElementById('viewer-placeholder');
         const viewerContainer = document.getElementById('viewer-container');
+        const backHomeBtn = document.getElementById('back-home-btn');
+        const viewerInfoBtn = document.getElementById('viewer-info-btn');
         const resetAppBtn = document.getElementById('reset-app-btn');
-        const gpuWarning = document.getElementById('gpu-warning');
         let splatCanvas = document.getElementById('splat-canvas');
         const viewerControls = document.getElementById('viewer-controls');
         const videoControls = document.getElementById('video-controls');
@@ -1263,6 +2541,25 @@
         const fullscreenBtn = document.getElementById('fullscreen-btn');
         const iconExpand = document.getElementById('icon-expand');
         const iconCompress = document.getElementById('icon-compress');
+        const imagegenPanel = document.getElementById('imagegen-panel');
+        const imagegenPadding = document.getElementById('imagegen-padding');
+        const imagegenGuardBandEnabled = document.getElementById('imagegen-guard-band-enabled');
+        const imagegenPreserveDetailsEnabled = document.getElementById('imagegen-preserve-details-enabled');
+        const imagegenDirectionButtons = Array.from(document.querySelectorAll('[data-imagegen-direction]'));
+        const imagegenDirectionAllBtn = document.getElementById('imagegen-direction-all');
+        const imagegenAspect = document.getElementById('imagegen-aspect');
+        const imagegenVariants = document.getElementById('imagegen-variants');
+        const imagegenAgentCount = document.getElementById('imagegen-parallel-agents');
+        const imagegenPrompt = document.getElementById('imagegen-prompt');
+        const imagegenStartBtn = document.getElementById('imagegen-start-btn');
+        const imagegenStopBtn = document.getElementById('imagegen-stop-btn');
+        const imagegenProgress = document.getElementById('imagegen-progress');
+        const imagegenProgressFill = document.getElementById('imagegen-progress-fill');
+        const imagegenProgressText = document.getElementById('imagegen-progress-text');
+        const imagegenProgressDiagnostics = document.getElementById('imagegen-progress-diagnostics');
+        const imagegenCandidates = document.getElementById('imagegen-candidates');
+        const imagegenCandidatePreview = document.getElementById('imagegen-candidate-preview');
+        const imagegenResults = document.getElementById('imagegen-results');
 
         // Quality Selector
         const qualitySelector = document.getElementById('quality-selector');
@@ -1286,19 +2583,117 @@
         const webcamControls = document.getElementById('webcam-controls');
         const webcamCanvas = document.getElementById('webcam-capture-canvas');
         const webcamFlash = document.getElementById('webcam-flash');
-        // Removed autoRefreshCheck reference
         let webcamStream = null;
+
+        const CONVERSION_SETTINGS_STORAGE_KEY = 'mlSharpConversionSettings';
+
+        function hasSelectOption(selectElement, value) {
+            if (!selectElement || value === undefined || value === null) return false;
+            return Array.from(selectElement.options).some(option => option.value === String(value));
+        }
+
+        function restoreConversionSettings() {
+            let savedSettings = null;
+            try {
+                savedSettings = JSON.parse(localStorage.getItem(CONVERSION_SETTINGS_STORAGE_KEY) || 'null');
+            } catch (error) {
+                savedSettings = null;
+            }
+
+            if (!savedSettings || typeof savedSettings !== 'object') return;
+
+            if (hasSelectOption(qualitySelector, savedSettings.quality)) {
+                qualitySelector.value = savedSettings.quality;
+            }
+            if (hasSelectOption(batchSizeSelector, savedSettings.batchSize)) {
+                batchSizeSelector.value = savedSettings.batchSize;
+            }
+            if (hasSelectOption(sbsOpacity, savedSettings.sbsOpacity)) {
+                sbsOpacity.value = savedSettings.sbsOpacity;
+            }
+            if (hasSelectOption(sbsOffset, savedSettings.sbsOffset)) {
+                sbsOffset.value = savedSettings.sbsOffset;
+            }
+            if (hasSelectOption(sbsBrightness, savedSettings.sbsBrightness)) {
+                sbsBrightness.value = savedSettings.sbsBrightness;
+            }
+            if (hasSelectOption(sbsFrameSkip, savedSettings.sbsFrameSkip)) {
+                sbsFrameSkip.value = savedSettings.sbsFrameSkip;
+            }
+            if (typeof savedSettings.sbsEnabled === 'boolean') {
+                sbsToggle.checked = savedSettings.sbsEnabled;
+            }
+        }
+
+        function saveConversionSettings() {
+            const settings = {
+                quality: qualitySelector.value,
+                batchSize: batchSizeSelector.value,
+                sbsEnabled: sbsToggle.checked,
+                sbsOpacity: sbsOpacity.value,
+                sbsOffset: sbsOffset.value,
+                sbsBrightness: sbsBrightness.value,
+                sbsFrameSkip: sbsFrameSkip.value,
+            };
+
+            try {
+                localStorage.setItem(CONVERSION_SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+            } catch (error) {
+                console.warn('Unable to save conversion settings:', error);
+            }
+        }
+
+        function syncSbsSettingsVisibility() {
+            if (!sbsToggle || !sbsSettings) return;
+            sbsSettings.style.display = sbsToggle.checked ? 'block' : 'none';
+        }
 
         init();
 
         async function init() {
-            // FORCE UNCHECK ON LOAD
-            if (sbsToggle) sbsToggle.checked = false;
-            if (sbsSettings) sbsSettings.style.display = 'none';
+            setupDesktopChrome();
+            restoreConversionSettings();
+            syncSbsSettingsVisibility();
 
             setupEventListeners();
+            syncImagegenDirectionControls();
+            syncImagegenGuardBandControls();
+            syncImagegenAgentCountControls();
             setupResizeObserver();
             await checkServerStatus();
+            await loadPlyLibrary();
+        }
+
+        function setupDesktopChrome() {
+            const desktop = window.sharpDesktop;
+            if (!desktop || !desktop.isDesktop) return;
+
+            document.documentElement.classList.add('desktop-app');
+            document.body.classList.add('desktop-app');
+
+            const controls = desktop.windowControls;
+            if (!controls) return;
+
+            const minimizeBtn = document.getElementById('window-minimize');
+            const maximizeBtn = document.getElementById('window-maximize');
+            const closeBtn = document.getElementById('window-close');
+
+            const setMaximizedState = (isMaximized) => {
+                if (!maximizeBtn) return;
+                maximizeBtn.title = isMaximized ? 'Restore' : 'Maximize';
+                maximizeBtn.setAttribute('aria-label', isMaximized ? 'Restore' : 'Maximize');
+                maximizeBtn.classList.toggle('is-restore', Boolean(isMaximized));
+            };
+
+            minimizeBtn?.addEventListener('click', () => controls.minimize?.());
+            maximizeBtn?.addEventListener('click', async () => {
+                const isMaximized = await controls.toggleMaximize?.();
+                setMaximizedState(Boolean(isMaximized));
+            });
+            closeBtn?.addEventListener('click', () => controls.close?.());
+
+            controls.isMaximized?.().then(setMaximizedState).catch(() => {});
+            controls.onMaximizedChange?.(setMaximizedState);
         }
 
         function setupResizeObserver() {
@@ -1315,10 +2710,29 @@
             fileInput.addEventListener('change', handleFileSelect);
             uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });
             uploadZone.addEventListener('dragleave', () => { uploadZone.classList.remove('dragover'); });
-            uploadZone.addEventListener('drop', (e) => { e.preventDefault(); uploadZone.classList.remove('dragover'); if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]); });
+            uploadZone.addEventListener('drop', (e) => { e.preventDefault(); uploadZone.classList.remove('dragover'); if (e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files); });
             generateBtn.addEventListener('click', handleGenerate);
+            clearSelectionBtn.addEventListener('click', () => {
+                clearImageSelectionPreview();
+                showStatus('Selection cleared.', 'info');
+            });
+            clearMemoryCacheBtn.addEventListener('click', clearMemoryCache);
             stopBtn.addEventListener('click', handleStopJob);
-            loadLocalBtn.addEventListener('click', handleLoadLocal);
+            imagegenStartBtn.addEventListener('click', startImagegenExtension);
+            imagegenStopBtn.addEventListener('click', stopImagegenExtension);
+            imagegenGuardBandEnabled.addEventListener('change', syncImagegenGuardBandControls);
+            imagegenVariants.addEventListener('input', syncImagegenAgentCountControls);
+            imagegenVariants.addEventListener('change', syncImagegenAgentCountControls);
+            imagegenAgentCount.addEventListener('change', syncImagegenAgentCountControls);
+            imagegenDirectionButtons.forEach((button) => {
+                button.addEventListener('click', () => toggleImagegenDirection(button.dataset.imagegenDirection));
+            });
+            imagegenDirectionAllBtn.addEventListener('click', toggleAllImagegenDirections);
+            libraryRefreshBtn.addEventListener('click', loadPlyLibrary);
+            backHomeBtn.addEventListener('click', showHomeView);
+            viewerInfoBtn.addEventListener('click', () => {
+                setViewerControlsVisible(!viewerControls.classList.contains('visible'));
+            });
             browseBtn.addEventListener('click', () => { const mode = document.querySelector('input[name="load-mode"]:checked').value; if (mode === 'single') localFilePicker.click(); else localFolderPicker.click(); });
             localFilePicker.addEventListener('change', (e) => { if (e.target.files.length > 0) handleDirectLoadSingle(e.target.files[0]); });
             localFolderPicker.addEventListener('change', (e) => { if (e.target.files.length > 0) handleDirectLoadVideo(e.target.files); });
@@ -1337,19 +2751,20 @@
             startCameraBtn.addEventListener('click', startWebcam);
             captureBtn.addEventListener('click', captureAndGenerate);
 
+            [qualitySelector, batchSizeSelector, sbsOpacity, sbsOffset, sbsBrightness].forEach((control) => {
+                control.addEventListener('change', saveConversionSettings);
+            });
+
             // SBS Settings Toggle
             sbsToggle.addEventListener('change', function () {
-                if (this.checked) {
-                    sbsSettings.style.display = 'block';
-                    updateFrameEstimate(); // Update when SBS mode toggled
-                } else {
-                    sbsSettings.style.display = 'none';
-                    updateFrameEstimate(); // Reset estimate when SBS toggled off
-                }
+                syncSbsSettingsVisibility();
+                saveConversionSettings();
             });
 
             // Frame Skip change listener
-            sbsFrameSkip.addEventListener('change', updateFrameEstimate);
+            sbsFrameSkip.addEventListener('change', () => {
+                saveConversionSettings();
+            });
 
             // SBS Preview
             const sbsPreviewBtn = document.getElementById('sbs-preview-btn');
@@ -1382,8 +2797,273 @@
                     } else if (e.key === 'f' || e.key === 'F') {
                         toggleSbsPreviewFullscreen();
                     }
+                    return;
                 }
+                handleViewerShortcut(e);
             });
+        }
+
+        function handleViewerShortcut(e) {
+            if (!document.body.classList.contains('viewer-mode')) return;
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+
+            if (e.key === 'r' || e.key === 'R') {
+                if (viewer) viewer.resetCamera();
+                e.preventDefault();
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullscreen();
+                e.preventDefault();
+            } else if (e.key === 'Escape') {
+                if (document.fullscreenElement || document.webkitFullscreenElement) {
+                    if (document.exitFullscreen) document.exitFullscreen();
+                    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                } else {
+                    showHomeView();
+                }
+                e.preventDefault();
+            }
+        }
+
+        function showHomeView() {
+            document.body.classList.remove('viewer-mode');
+            document.body.classList.add('home-mode');
+            setViewerControlsVisible(false);
+            if (videoData.isPlaying) pauseVideo();
+        }
+
+        function showViewerView() {
+            document.body.classList.remove('home-mode');
+            document.body.classList.add('viewer-mode');
+            window.dispatchEvent(new Event('resize'));
+        }
+
+        function setViewerControlsVisible(isVisible) {
+            viewerControls.classList.toggle('visible', isVisible);
+            viewerInfoBtn.classList.toggle('active', isVisible);
+            viewerInfoBtn.setAttribute('aria-expanded', String(isVisible));
+        }
+
+        function getLibraryItemKey(item) {
+            return `${item.type}:${item.filename}`;
+        }
+
+        function getLibraryDisplayName(item) {
+            return item.type === 'ply' ? item.name.replace(/\.ply$/i, '') : item.name;
+        }
+
+        function hideImagegenCandidates() {
+            if (!imagegenCandidates) return;
+            imagegenResults.innerHTML = '';
+            imagegenCandidatePreview.innerHTML = '';
+            imagegenRenderedOutputCount = 0;
+            imagegenCandidates.classList.remove('visible');
+        }
+
+        function showImagegenCandidates() {
+            if (!imagegenCandidates) return;
+            imagegenCandidates.classList.add('visible');
+        }
+
+        async function loadPlyLibrary() {
+            if (!libraryList) return;
+            libraryList.innerHTML = '<div class="library-empty">Loading Library...</div>';
+
+            try {
+                const response = await fetch('/outputs?limit=80');
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Unable to load Library.');
+                }
+                renderPlyLibrary(data.items || []);
+            } catch (error) {
+                console.error('Unable to load Library:', error);
+                libraryList.innerHTML = '<div class="library-empty">Unable to load Library.</div>';
+            }
+        }
+
+        function renderPlyLibrary(items) {
+            libraryList.innerHTML = '';
+            if (!items.length) {
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+            items.forEach((item) => {
+                const itemKey = getLibraryItemKey(item);
+                const card = document.createElement('div');
+                card.className = 'ply-card';
+                card.tabIndex = 0;
+                card.setAttribute('role', 'button');
+                card.setAttribute('aria-label', `Open ${item.name}`);
+
+                const thumbFrame = document.createElement('div');
+                thumbFrame.className = 'ply-thumb-frame';
+
+                if (item.thumbnail_url) {
+                    const img = document.createElement('img');
+                    img.className = 'ply-thumb';
+                    img.src = item.thumbnail_url;
+                    img.alt = item.name;
+                    img.loading = 'lazy';
+                    thumbFrame.appendChild(img);
+                } else {
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'ply-thumb-placeholder';
+                    placeholder.textContent = item.type === 'video'
+                        ? 'PLY Sequence'
+                        : item.type === 'movie'
+                            ? 'SBS Movie'
+                            : 'No thumbnail';
+                    thumbFrame.appendChild(placeholder);
+                }
+                card.appendChild(thumbFrame);
+
+                const body = document.createElement('div');
+                body.className = 'ply-card-body';
+
+                const title = document.createElement('div');
+                title.className = 'ply-card-title';
+                title.textContent = getLibraryDisplayName(item);
+                body.appendChild(title);
+
+                const meta = document.createElement('div');
+                meta.className = 'ply-card-meta';
+                const size = formatBytes(item.size_bytes || 0);
+                const date = item.modified ? new Date(item.modified * 1000).toLocaleString() : '';
+                const typeLabel = item.type === 'video'
+                    ? `PLY Sequence | ${item.frame_count || 0} frames`
+                    : item.type === 'movie'
+                        ? 'SBS Movie'
+                        : 'PLY';
+                const folderLabel = item.folder ? `${item.folder} | ` : '';
+                const metaLine = document.createElement('div');
+                metaLine.className = 'ply-card-meta-line';
+                metaLine.textContent = `${folderLabel}${typeLabel} | ${size}`;
+                meta.appendChild(metaLine);
+                if (date) {
+                    const dateLine = document.createElement('div');
+                    dateLine.className = 'ply-card-date';
+                    dateLine.textContent = date;
+                    meta.appendChild(dateLine);
+                }
+                body.appendChild(meta);
+
+                const actions = document.createElement('div');
+                actions.className = 'ply-card-actions';
+
+                if (item.download_url) {
+                    const downloadLink = document.createElement('a');
+                    downloadLink.className = 'ply-action';
+                    downloadLink.href = item.download_url;
+                    downloadLink.textContent = 'Download';
+                    downloadLink.addEventListener('click', (event) => event.stopPropagation());
+                    actions.appendChild(downloadLink);
+                }
+
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'ply-action danger';
+                deleteButton.type = 'button';
+                deleteButton.textContent = deletingLibraryItems.has(itemKey) ? 'Deleting...' : 'Delete';
+                deleteButton.disabled = deletingLibraryItems.has(itemKey);
+                deleteButton.setAttribute('aria-label', `Delete ${item.name}`);
+                deleteButton.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    deleteLibraryItem(item, deleteButton);
+                });
+                actions.appendChild(deleteButton);
+
+                body.appendChild(actions);
+                card.appendChild(body);
+
+                card.addEventListener('click', () => loadLibraryItem(item));
+                card.addEventListener('keydown', (event) => {
+                    if (event.target === card && (event.key === 'Enter' || event.key === ' ')) {
+                        event.preventDefault();
+                        loadLibraryItem(item);
+                    }
+                });
+
+                fragment.appendChild(card);
+            });
+
+            libraryList.appendChild(fragment);
+        }
+
+        async function deleteLibraryItem(item, deleteButton) {
+            const itemKey = getLibraryItemKey(item);
+            if (deletingLibraryItems.has(itemKey)) return;
+            const confirmed = window.confirm(
+                `Delete "${getLibraryDisplayName(item)}"?\n\n` +
+                'The selected result and any generated sidecar files will be permanently deleted from Library.'
+            );
+            if (!confirmed) return;
+
+            deletingLibraryItems.add(itemKey);
+            deleteButton.disabled = true;
+            deleteButton.textContent = 'Deleting...';
+
+            try {
+                const response = await fetch('/outputs/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: item.type, filename: item.filename }),
+                });
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || 'Unable to delete the Library result.');
+                }
+                await loadPlyLibrary();
+                showStatus(`Deleted ${getLibraryDisplayName(item)}.`, 'success');
+            } catch (error) {
+                showErrorStatus(`Unable to delete ${getLibraryDisplayName(item)}: ${error.message}`);
+            } finally {
+                deletingLibraryItems.delete(itemKey);
+                if (deleteButton.isConnected) {
+                    deleteButton.disabled = false;
+                    deleteButton.textContent = 'Delete';
+                }
+            }
+        }
+
+        function loadLibraryItem(item) {
+            activeJobId = null;
+            videoControls.classList.remove('visible');
+            progressBar.classList.remove('visible');
+
+            if (item.type === 'video') {
+                showViewerView();
+                isVideoMode = true;
+                showStatus(`Loading PLY Sequence: ${item.name}`, 'info');
+                setupVideoPlayback({
+                    ply_files: item.ply_files || [],
+                    base_url: item.base_url || '',
+                    fps: item.fps || 30,
+                });
+                return;
+            }
+
+            if (item.type === 'movie') {
+                showHomeView();
+                isVideoMode = false;
+                showStatus(`SBS Movie ready to download: ${item.name}.`, 'success');
+                return;
+            }
+
+            showViewerView();
+            isVideoMode = false;
+            loadSplatViewer(item.view_url, true);
+        }
+
+        function formatBytes(bytes) {
+            if (!bytes) return '0 B';
+            const units = ['B', 'KB', 'MB', 'GB'];
+            let value = bytes;
+            let unitIndex = 0;
+            while (value >= 1024 && unitIndex < units.length - 1) {
+                value /= 1024;
+                unitIndex += 1;
+            }
+            return `${value.toFixed(value >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
         }
 
         function toggleSBS() {
@@ -1391,23 +3071,14 @@
             const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0 || navigator.userAgent.toLowerCase().includes("mac");
 
             if (isMac) {
-                showStatus("Feature is only supported on PC", "error");
+                showErrorStatus('SBS View is not supported on macOS.');
                 return;
             }
 
             if (!viewer) return;
             viewer.toggleStereo();
             const isSBS = viewer.stereoMode;
-            if (isSBS) {
-                sbsBtn.style.background = "rgba(0, 212, 255, 0.4)";
-                sbsBtn.style.color = "#00d4ff";
-                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                    toggleFullscreen();
-                }
-            } else {
-                sbsBtn.style.background = "";
-                sbsBtn.style.color = "";
-            }
+            sbsBtn.classList.toggle('active', isSBS);
             window.focus();
         }
 
@@ -1419,22 +3090,27 @@
             createView.style.display = 'none';
             loadView.style.display = 'none';
             webcamView.style.display = 'none';
+            settingsView.style.display = 'none';
 
             if (mode === 'create') {
-                createView.style.display = 'block';
+                createView.style.display = 'flex';
                 stopWebcam();
             } else if (mode === 'load') {
-                loadView.style.display = 'block';
+                loadView.style.display = 'flex';
                 stopWebcam();
             } else if (mode === 'webcam') {
-                webcamView.style.display = 'block';
+                webcamView.style.display = 'flex';
+            } else if (mode === 'settings') {
+                settingsView.style.display = 'flex';
+                stopWebcam();
             }
         }
 
         /* --- SBS PREVIEW FUNCTIONS --- */
         async function handleSbsPreview() {
-            if (!selectedFile || !isVideoMode) {
-                showStatus("Please load a video first", "error");
+            const previewFile = selectedFile || (selectedFiles.length > 0 ? selectedFiles[0] : null);
+            if (!previewFile || !isVideoMode) {
+                showErrorStatus('Select a video before generating an SBS Preview.');
                 return;
             }
 
@@ -1445,7 +3121,7 @@
             // Get the current video time and convert to frame number
             const videoEl = document.getElementById('preview-video');
             if (!videoEl || !videoEl.duration) {
-                showStatus("Video not loaded properly", "error");
+                showErrorStatus('The selected video is not ready for an SBS Preview.');
                 return;
             }
 
@@ -1463,11 +3139,11 @@
             // Show loading state
             sbsPreviewBtn.classList.add('loading');
             sbsPreviewBtn.disabled = true;
-            showStatus(`Generating SBS preview for frame ${frameNumber}...`, 'info');
+            showStatus(`Generating SBS Preview for frame ${frameNumber}...`, 'info');
 
             try {
                 const formData = new FormData();
-                formData.append('video', selectedFile);
+                formData.append('video', previewFile);
                 formData.append('frame_number', frameNumber);
                 formData.append('quality', quality);
                 formData.append('opacity_threshold', opacityThreshold);
@@ -1481,7 +3157,7 @@
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(errorData.error || 'Preview generation failed');
+                    throw new Error(errorData.error || 'Unable to generate SBS Preview.');
                 }
 
                 // Get the image blob and display it
@@ -1490,11 +3166,11 @@
 
                 sbsPreviewImage.src = imageUrl;
                 sbsPreviewModal.classList.add('visible');
-                showStatus("SBS preview ready! View fullscreen to test the 3D effect.", "success");
+                showStatus('SBS Preview ready. Open fullscreen to test the 3D effect.', 'success');
 
             } catch (error) {
                 console.error("SBS Preview error:", error);
-                showStatus("Preview failed: " + error.message, "error");
+                showErrorStatus(error, 'Unable to generate SBS Preview.');
             } finally {
                 sbsPreviewBtn.classList.remove('loading');
                 sbsPreviewBtn.disabled = false;
@@ -1591,10 +3267,10 @@
                 webcamFeed.srcObject = webcamStream;
                 startCameraBtn.style.display = 'none';
                 webcamControls.style.display = 'block';
-                showStatus("Webcam started. Align your shot!", "info");
+                showStatus('Webcam started. Align your shot.', 'info');
             } catch (err) {
                 console.error("Webcam error:", err);
-                showStatus("Could not access webcam: " + err.message, "error");
+                showErrorStatus(`Unable to access the webcam: ${err.message}`);
             }
         }
 
@@ -1627,6 +3303,7 @@
 
                 // Use generation logic
                 selectedFile = file;
+                selectedFiles = [];
                 isVideoMode = false;
 
                 captureBtn.classList.add('loading');
@@ -1642,283 +3319,1053 @@
 
         /* --- LOADING / GENERATION --- */
         window.toggleLoadMode = function (mode) {
-            if (mode === 'single') { localPathInput.placeholder = "Absolute path on server (e.g. C:\\path\\file.ply)"; pathHint.textContent = "Enter absolute path to a .ply file"; } else { localPathInput.placeholder = "Absolute path to folder (e.g. C:\\path\\ply_sequence)"; pathHint.textContent = "Enter absolute path to a directory containing .ply files"; }
-        }
-        function handleDirectLoadSingle(file) { const url = URL.createObjectURL(file); isVideoMode = false; localPathInput.value = `[File Selected: ${file.name}]`; document.querySelector('.mode-tabs').style.display = 'none'; createView.style.display = 'none'; loadView.style.display = 'none'; resetAppBtn.style.display = 'flex'; loadSplatViewer(url, true); }
-        function handleDirectLoadVideo(fileList) { const files = Array.from(fileList).filter(f => f.name.toLowerCase().endsWith('.ply')); if (files.length === 0) { showStatus("No .ply files found.", "error"); return; } files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' })); const blobUrls = files.map(f => URL.createObjectURL(f)); isVideoMode = true; localPathInput.value = `[Folder Selected: ${files.length} frames]`; document.querySelector('.mode-tabs').style.display = 'none'; createView.style.display = 'none'; loadView.style.display = 'none'; resetAppBtn.style.display = 'flex'; setupVideoPlayback({ ply_files: [], base_url: "", fps: 30 }, blobUrls); }
-        function handleFileSelect(e) { const files = e.target.files; if (files.length > 0) handleFile(files[0]); }
-        function handleFile(file) {
-            selectedFile = file;
-            const fileType = file.type;
-            previewContainer.classList.add('visible');
-            showStatus("File selected: " + file.name, "info");
+            const copyByMode = {
+                single: {
+                    placeholder: "No File Selected...",
+                },
+                video: {
+                    placeholder: "No Folder Selected...",
+                },
+            };
+            const copy = copyByMode[mode] || copyByMode.single;
 
-            if (fileType.startsWith('image/')) {
-                isVideoMode = false;
-                videoOptions.style.display = 'none';
+            localPathInput.placeholder = copy.placeholder;
+            localPathInput.value = '';
+        }
+        function handleDirectLoadSingle(file) { const url = URL.createObjectURL(file); isVideoMode = false; localPathInput.value = `[File Selected: ${file.name}]`; showViewerView(); loadSplatViewer(url, true); }
+        function handleDirectLoadVideo(fileList) { const files = Array.from(fileList).filter(f => f.name.toLowerCase().endsWith('.ply')); if (files.length === 0) { showErrorStatus('No PLY files found.'); return; } files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' })); const blobUrls = files.map(f => URL.createObjectURL(f)); isVideoMode = true; localPathInput.value = `[Folder Selected: ${files.length} frames]`; showViewerView(); setupVideoPlayback({ ply_files: [], base_url: "", fps: 30 }, blobUrls); }
+        function handleFileSelect(e) { const files = e.target.files; if (files.length > 0) handleFiles(files); }
+
+        async function clearMemoryCache() {
+            clearMemoryCacheBtn.classList.add('loading');
+            clearMemoryCacheBtn.disabled = true;
+            try {
+                const response = await fetch('/clear_memory_cache', { method: 'POST' });
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || 'Unable to clear completed job records.');
+                }
+                const cleared = data.cleared_total || 0;
+                const active = data.active_total || 0;
+                showStatus(`Cleared ${formatCount(cleared, 'completed job record')}; kept ${formatCount(active, 'active job')}.`, 'success');
+            } catch (error) {
+                showErrorStatus(error, 'Unable to clear completed job records.');
+            } finally {
+                clearMemoryCacheBtn.classList.remove('loading');
+                clearMemoryCacheBtn.disabled = false;
+            }
+        }
+
+        function resetStopButton() {
+            stopBtn.classList.remove('visible');
+            stopBtn.disabled = false;
+            stopBtn.innerHTML = stopBtnContent;
+        }
+
+        function hasInputSelection() {
+            return Boolean(selectedFile || selectedFiles.length > 0);
+        }
+
+        function updateClearSelectionButton() {
+            clearSelectionBtn.disabled = generateBtn.classList.contains('loading') || Boolean(imagegenPollInterval) || !hasInputSelection();
+        }
+
+        function getImagegenProgressMessage(status, outputCount, targetCount, agentCount) {
+            const imageText = `${outputCount}/${targetCount} ${targetCount === 1 ? 'image' : 'images'}`;
+            const agentText = formatCount(agentCount, 'parallel agent');
+            if (status === 'queued') return `Image Extension queued: ${imageText}; ${agentText}.`;
+            if (status === 'running') return `Image Extension running: ${imageText}; ${agentText}.`;
+            if (status === 'stopping') return `Image Extension stopping: ${imageText}; ${agentText}.`;
+            if (status === 'success') return `Image Extension ready: ${imageText}. Select one, then generate.`;
+            if (status === 'stopped') return `Image Extension stopped: ${imageText}.`;
+            return `Image Extension failed: ${imageText}.`;
+        }
+
+        function getImagegenFailureDiagnostics(data) {
+            if (!data || !Array.isArray(data.worker_failures) || data.worker_failures.length === 0) {
+                return '';
+            }
+            return data.worker_failures
+                .map((failure) => {
+                    const label = failure.label || (Number.isInteger(failure.index) ? `Parallel Agent ${failure.index}` : 'Parallel Agent');
+                    const reason = getErrorStatusMessage(failure.error, 'No failure details were reported.');
+                    return `${label}: ${reason}`;
+                })
+                .join(' ');
+        }
+
+        function getImagegenProgressSnapshot(data, outputCount, targetCount) {
+            const totalAgents = Number.parseInt(data.total_agents || imagegenAgentTotal || 1, 10) || 1;
+            const finishedAgents = Number.parseInt(data.finished_agents, 10);
+            const failedAgents = Number.parseInt(data.failed_agents, 10) || 0;
+            const progressTarget = totalAgents > 1 ? totalAgents : targetCount;
+            let progressValue = totalAgents > 1
+                ? (Number.isFinite(finishedAgents) ? finishedAgents : 0)
+                : outputCount;
+
+            if (['done', 'error', 'stopped', 'timeout'].includes(data.status)) {
+                progressValue = progressTarget;
+            }
+
+            return {
+                progressValue,
+                progressTarget,
+                totalAgents,
+                failedAgents,
+            };
+        }
+
+        function setImagegenProgress(status, outputCount = 0, targetCount = imagegenTargetCount, agentCount = imagegenAgentTotal, message = null) {
+            const safeTarget = Math.max(1, Number.parseInt(targetCount, 10) || 1);
+            const safeOutput = Math.min(Math.max(0, Number.parseInt(outputCount, 10) || 0), safeTarget);
+            const safeAgents = Math.max(1, Number.parseInt(agentCount, 10) || 1);
+            const percent = Math.round((safeOutput / safeTarget) * 100);
+
+            imagegenTargetCount = safeTarget;
+            imagegenAgentTotal = safeAgents;
+            imagegenCompletedCount = safeOutput;
+
+            imagegenProgress.classList.add('visible');
+            imagegenProgress.classList.toggle('success', status === 'success');
+            imagegenProgress.classList.toggle('error', status === 'error');
+            imagegenProgress.classList.toggle('queued', status === 'queued');
+            imagegenProgress.classList.toggle('running', status === 'running');
+            imagegenProgress.classList.toggle('stopping', status === 'stopping');
+            imagegenProgressFill.style.width = `${percent}%`;
+            imagegenProgressText.textContent = `${percent}%`;
+            const accessibleMessage = message || getImagegenProgressMessage(status, safeOutput, safeTarget, safeAgents);
+            const shouldShowDiagnostics = Boolean(message) && ['error', 'running', 'queued'].includes(status);
+            if (shouldShowDiagnostics) {
+                imagegenProgressDiagnostics.textContent = accessibleMessage;
+                imagegenProgressDiagnostics.classList.add('visible');
+            } else {
+                imagegenProgressDiagnostics.textContent = '';
+                imagegenProgressDiagnostics.classList.remove('visible');
+            }
+            imagegenProgress.setAttribute('aria-label', accessibleMessage);
+            imagegenProgress.title = accessibleMessage;
+        }
+
+        function hideImagegenProgress() {
+            imagegenProgress.classList.remove('visible', 'success', 'error', 'queued', 'running', 'stopping');
+            imagegenProgressFill.style.width = '0%';
+            imagegenProgressText.textContent = '';
+            imagegenProgressDiagnostics.textContent = '';
+            imagegenProgressDiagnostics.classList.remove('visible');
+            imagegenProgress.removeAttribute('aria-label');
+            imagegenProgress.removeAttribute('title');
+        }
+
+        function resetImagegenState(options = {}) {
+            if (imagegenPollInterval) {
+                clearInterval(imagegenPollInterval);
+                imagegenPollInterval = null;
+            }
+            imagegenJobId = null;
+            imagegenOutputReady = false;
+            imagegenOutputs = [];
+            imagegenRenderedOutputCount = 0;
+            imagegenSelectedFilename = null;
+            imagegenTargetCount = 1;
+            imagegenAgentTotal = 1;
+            imagegenCompletedCount = 0;
+            imagegenStartBtn.disabled = false;
+            imagegenStopBtn.disabled = true;
+            hideImagegenProgress();
+            hideImagegenCandidates();
+            if (options.hidePanel) {
+                imagegenPanel.classList.remove('visible');
+            }
+            if (options.clearPrompt) {
+                imagegenPrompt.value = '';
+                imagegenPadding.value = '15';
+                imagegenGuardBandEnabled.checked = true;
+                imagegenPreserveDetailsEnabled.checked = true;
+                syncImagegenGuardBandControls();
+                imagegenDirections = new Set(['top', 'right', 'bottom', 'left']);
+                syncImagegenDirectionControls();
+                imagegenAspect.value = 'keep';
+                imagegenVariants.value = '1';
+                imagegenAgentCount.value = '1';
+                syncImagegenAgentCountControls();
+            }
+        }
+
+        function clearSelectedFilesList() {
+            selectedFilesList.innerHTML = '';
+            selectedFilesList.style.display = 'none';
+            selectedFilesList.classList.remove('image-preview-list');
+        }
+
+        function clearSelectedPreviewUrls() {
+            selectedPreviewUrls.forEach((url) => URL.revokeObjectURL(url));
+            selectedPreviewUrls = [];
+            clearSelectedFilesList();
+        }
+
+        function clearImageSelectionPreview() {
+            resetImagegenState({ hidePanel: true, clearPrompt: true });
+            clearSelectedPreviewUrls();
+            selectedFile = null;
+            selectedFiles = [];
+            isVideoMode = false;
+            fileInput.value = '';
+            videoOptions.style.display = 'none';
+            previewContainer.classList.remove('visible');
+            previewImage.style.display = 'none';
+            previewImage.removeAttribute('src');
+            previewVideo.pause();
+            previewVideo.style.display = 'none';
+            previewVideo.removeAttribute('src');
+            previewVideo.load();
+            generateBtn.disabled = true;
+            clearSelectionBtn.disabled = true;
+        }
+
+        function createSelectedPreviewUrl(file) {
+            const url = URL.createObjectURL(file);
+            selectedPreviewUrls.push(url);
+            return url;
+        }
+
+        function renderSelectedFiles(files, options = {}) {
+            const previewOnly = Boolean(options.previewOnly);
+            selectedFilesList.innerHTML = '';
+            selectedFilesList.classList.toggle('image-preview-list', previewOnly);
+            if (files.length <= 1 && !previewOnly) {
+                selectedFilesList.style.display = 'none';
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+            files.forEach((file, index) => {
+                const row = document.createElement('div');
+                row.className = 'selected-file-item';
+
+                let thumb;
+                if (isImageUpload(file)) {
+                    thumb = document.createElement('img');
+                    thumb.alt = file.name;
+                } else {
+                    thumb = document.createElement('video');
+                    thumb.muted = true;
+                    thumb.playsInline = true;
+                    thumb.preload = 'metadata';
+                }
+                thumb.className = 'selected-file-thumb';
+                thumb.src = createSelectedPreviewUrl(file);
+
+                row.appendChild(thumb);
+                if (!previewOnly) {
+                    const name = document.createElement('span');
+                    name.className = 'selected-file-name';
+                    name.textContent = `${index + 1}. ${file.name}`;
+
+                    const size = document.createElement('span');
+                    size.className = 'selected-file-size';
+                    size.textContent = formatBytes(file.size);
+
+                    row.appendChild(name);
+                    row.appendChild(size);
+                }
+                fragment.appendChild(row);
+            });
+
+            selectedFilesList.appendChild(fragment);
+            selectedFilesList.style.display = 'grid';
+        }
+
+        function rejectFileSelection(message) {
+            resetImagegenState({ hidePanel: true, clearPrompt: true });
+            clearSelectedPreviewUrls();
+            selectedFile = null;
+            selectedFiles = [];
+            isVideoMode = false;
+            videoOptions.style.display = 'none';
+            previewContainer.classList.remove('visible');
+            previewImage.style.display = 'none';
+            previewVideo.style.display = 'none';
+            previewVideo.removeAttribute('src');
+            previewVideo.load();
+            generateBtn.disabled = true;
+            clearSelectionBtn.disabled = true;
+            showErrorStatus(message);
+        }
+
+        function handleFiles(fileList) {
+            const files = Array.from(fileList);
+            if (!files.length) return;
+
+            const imageFiles = [];
+            const videoFiles = [];
+            const unsupportedFiles = [];
+
+            files.forEach((file) => {
+                if (isImageUpload(file)) imageFiles.push(file);
+                else if (isVideoUpload(file)) videoFiles.push(file);
+                else unsupportedFiles.push(file);
+            });
+
+            if (unsupportedFiles.length > 0) {
+                rejectFileSelection(`Unsupported file type: ${unsupportedFiles[0].name}`);
+                return;
+            }
+
+            if (imageFiles.length > 0 && videoFiles.length > 0) {
+                rejectFileSelection('Select images or videos, not both.');
+                return;
+            }
+
+            if (imageFiles.length > 0) {
+                handleImageSelection(imageFiles);
+                return;
+            }
+
+            if (videoFiles.length > 0) {
+                handleVideoSelection(videoFiles);
+            }
+        }
+
+        function handleImageSelection(imageFiles) {
+            resetImagegenState({ hidePanel: imageFiles.length !== 1 });
+            clearSelectedPreviewUrls();
+            selectedFile = imageFiles.length === 1 ? imageFiles[0] : null;
+            selectedFiles = imageFiles.length > 1 ? imageFiles : [];
+            isVideoMode = false;
+
+            videoOptions.style.display = 'none';
+            previewContainer.classList.add('visible');
+            previewVideo.style.display = 'none';
+            previewVideo.removeAttribute('src');
+
+            const firstFile = imageFiles[0];
+
+            if (imageFiles.length === 1) {
+                imagegenPanel.classList.add('visible');
                 previewImage.style.display = 'block';
-                previewVideo.style.display = 'none';
                 const reader = new FileReader();
                 reader.onload = (e) => { previewImage.src = e.target.result; };
-                reader.readAsDataURL(file);
-            } else if (fileType.startsWith('video/')) {
-                isVideoMode = true;
-                videoOptions.style.display = 'block';
+                reader.readAsDataURL(firstFile);
+                renderSelectedFiles([]);
+            } else {
+                imagegenPanel.classList.remove('visible');
                 previewImage.style.display = 'none';
-                previewVideo.style.display = 'block';
-                previewVideo.src = URL.createObjectURL(file);
-                videoFileName = file.name;
-                previewInfo.textContent = `${file.name} (Video - loading...)`;
-
-                // Get video duration and estimate frames when metadata loads
-                previewVideo.onloadedmetadata = () => {
-                    const duration = previewVideo.duration;
-                    videoFps = 30; // Assume 30fps (common default)
-                    videoTotalFrames = Math.ceil(duration * videoFps);
-                    updateFrameEstimate();
-                };
+                previewImage.removeAttribute('src');
+                renderSelectedFiles(imageFiles, { previewOnly: true });
             }
+
             generateBtn.disabled = false;
-            generateBtn.querySelector('.btn-text').textContent = isVideoMode ? "Generate Video Splats" : "Generate 3D Gaussian Splat";
-            downloadSection.classList.remove('visible');
+            clearSelectionBtn.disabled = false;
         }
 
-        // Update frame estimation based on skip setting
-        function updateFrameEstimate() {
-            if (!isVideoMode || videoTotalFrames === 0) return;
+        function handleVideoSelection(videoFiles) {
+            resetImagegenState({ hidePanel: true, clearPrompt: true });
+            clearSelectedPreviewUrls();
+            selectedFile = videoFiles.length === 1 ? videoFiles[0] : null;
+            selectedFiles = videoFiles.length > 1 ? videoFiles : [];
+            isVideoMode = true;
 
-            const frameSkip = sbsToggle.checked ? parseInt(sbsFrameSkip.value) : 1;
-            const framesToRender = Math.ceil(videoTotalFrames / frameSkip);
+            videoOptions.style.display = 'block';
+            previewContainer.classList.add('visible');
+            previewImage.style.display = 'none';
+            previewVideo.style.display = 'block';
 
-            if (sbsToggle.checked && frameSkip > 1) {
-                previewInfo.textContent = `${videoFileName} (~${videoTotalFrames} total → ${framesToRender} frames to render)`;
-            } else {
-                previewInfo.textContent = `${videoFileName} (~${videoTotalFrames} frames)`;
+            const firstFile = videoFiles[0];
+            previewVideo.src = createSelectedPreviewUrl(firstFile);
+
+            renderSelectedFiles(videoFiles);
+            generateBtn.disabled = false;
+            clearSelectionBtn.disabled = false;
+        }
+
+        function isImageUpload(file) {
+            if (file.type && file.type.startsWith('image/')) return true;
+            return /\.(png|jpe?g|heic|heif|tiff?|webp)$/i.test(file.name);
+        }
+
+        function isVideoUpload(file) {
+            if (file.type && file.type.startsWith('video/')) return true;
+            return /\.(mp4|mov|avi|mkv|webm)$/i.test(file.name);
+        }
+
+        async function checkCodexAvailability() {
+            const response = await fetch('/codex/status');
+            const data = await response.json();
+            if (!response.ok || !data.available) {
+                throw new Error(data.error || 'Codex CLI is not available.');
             }
+            if (!data.ready) {
+                throw new Error(data.error || 'Codex CLI is not ready. Check "codex login status", then try again.');
+            }
+            return data;
+        }
+
+        function syncImagegenDirectionControls() {
+            imagegenDirectionButtons.forEach((button) => {
+                const isActive = imagegenDirections.has(button.dataset.imagegenDirection);
+                button.classList.toggle('active', isActive);
+                button.setAttribute('aria-pressed', String(isActive));
+            });
+            const allActive = imagegenDirections.size === 4;
+            imagegenDirectionAllBtn.classList.toggle('active', allActive);
+            imagegenDirectionAllBtn.setAttribute('aria-pressed', String(allActive));
+        }
+
+        function syncImagegenGuardBandControls() {
+            imagegenPadding.disabled = !imagegenGuardBandEnabled.checked;
+        }
+
+        function syncImagegenAgentCountControls() {
+            const variantCount = normalizeIntegerInput(imagegenVariants, 1, 1, 8);
+            imagegenAgentCount.max = String(variantCount);
+            normalizeIntegerInput(imagegenAgentCount, Math.min(1, variantCount), 1, variantCount);
+        }
+
+        function toggleImagegenDirection(direction) {
+            if (!direction) return;
+            if (imagegenDirections.has(direction)) {
+                if (imagegenDirections.size === 1) {
+                    showStatus('Select at least one edge.', 'info');
+                    return;
+                }
+                imagegenDirections.delete(direction);
+            } else {
+                imagegenDirections.add(direction);
+            }
+            syncImagegenDirectionControls();
+        }
+
+        function toggleAllImagegenDirections() {
+            imagegenDirections = new Set(['top', 'right', 'bottom', 'left']);
+            syncImagegenDirectionControls();
+        }
+
+        function normalizeIntegerInput(input, fallback, min, max) {
+            const parsed = Number.parseInt(input.value, 10);
+            const nextValue = Number.isFinite(parsed)
+                ? Math.min(Math.max(parsed, min), max)
+                : fallback;
+            input.value = String(nextValue);
+            return nextValue;
+        }
+
+        async function startImagegenExtension() {
+            if (!selectedFile || isVideoMode || selectedFiles.length > 0) {
+                showErrorStatus('Select one image before using Image Extension.');
+                return;
+            }
+
+            resetImagegenState();
+            imagegenStartBtn.disabled = true;
+            imagegenStopBtn.disabled = false;
+            clearSelectionBtn.disabled = true;
+
+            try {
+                const paddingPercent = normalizeIntegerInput(imagegenPadding, 15, 1, 50);
+                const variantCount = normalizeIntegerInput(imagegenVariants, 1, 1, 8);
+                imagegenAgentCount.max = String(variantCount);
+                const agentCount = normalizeIntegerInput(imagegenAgentCount, 1, 1, variantCount);
+                imagegenTargetCount = variantCount;
+                imagegenAgentTotal = agentCount;
+                imagegenCompletedCount = 0;
+                hideStatus();
+                setImagegenProgress('running', 0, variantCount, agentCount);
+
+                await checkCodexAvailability();
+
+                const formData = new FormData();
+                formData.append('image', selectedFile);
+                formData.append('padding_percent', String(paddingPercent));
+                formData.append('guard_band_enabled', imagegenGuardBandEnabled.checked ? 'true' : 'false');
+                formData.append('preserve_original_details', imagegenPreserveDetailsEnabled.checked ? 'true' : 'false');
+                formData.append('directions', ['top', 'right', 'bottom', 'left']
+                    .filter((direction) => imagegenDirections.has(direction))
+                    .join(','));
+                formData.append('aspect_mode', imagegenAspect.value);
+                formData.append('variants', String(variantCount));
+                formData.append('parallel_agents', String(agentCount));
+                formData.append('prompt', imagegenPrompt.value.trim());
+
+                const response = await fetch('/imagegen/extend', { method: 'POST', body: formData });
+                const data = await response.json();
+                if (!response.ok || !data.success || !data.job_id) {
+                    throw new Error(data.error || 'Unable to start Image Extension.');
+                }
+
+                imagegenJobId = data.job_id;
+                setImagegenProgress('running', 0, variantCount, agentCount);
+                pollImagegenStatus(imagegenJobId);
+            } catch (error) {
+                imagegenStartBtn.disabled = false;
+                imagegenStopBtn.disabled = true;
+                hideImagegenCandidates();
+                setImagegenProgress(
+                    'error',
+                    imagegenCompletedCount,
+                    imagegenTargetCount,
+                    imagegenAgentTotal,
+                    getErrorStatusMessage(error, 'Unable to start Image Extension.')
+                );
+                updateClearSelectionButton();
+            }
+        }
+
+        async function selectImagegenVariant(output) {
+            if (!imagegenJobId || !output || !output.filename) return;
+
+            const response = await fetch(`/imagegen/select/${encodeURIComponent(imagegenJobId)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ filename: output.filename }),
+            });
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || 'Unable to select the Image Extension image.');
+            }
+
+            imagegenSelectedFilename = output.filename;
+            imagegenCandidatePreview.innerHTML = '';
+            const previewImg = document.createElement('img');
+            previewImg.src = output.url;
+            previewImg.alt = `Selected Image Extension image ${output.index || ''}`.trim();
+            imagegenCandidatePreview.appendChild(previewImg);
+
+            Array.from(imagegenResults.querySelectorAll('.imagegen-result')).forEach((node) => {
+                node.classList.toggle('selected', node.dataset.filename === imagegenSelectedFilename);
+            });
+        }
+
+        function createImagegenResultCard(output) {
+            const card = document.createElement('button');
+            card.type = 'button';
+            card.className = 'imagegen-result';
+            card.dataset.filename = output.filename;
+            if (output.selected) card.classList.add('selected');
+
+            const img = document.createElement('img');
+            img.src = output.url;
+            img.alt = `Image Extension image ${output.index || ''}`.trim();
+
+            card.appendChild(img);
+            card.addEventListener('click', async () => {
+                try {
+                    await selectImagegenVariant(output);
+                } catch (error) {
+                    showErrorStatus(error, 'Unable to select the Image Extension image.');
+                }
+            });
+            return card;
+        }
+
+        async function renderImagegenResults(outputs) {
+            imagegenOutputs = outputs || [];
+            imagegenRenderedOutputCount = 0;
+            imagegenResults.innerHTML = '';
+            await renderNewImagegenOutputs(imagegenOutputs);
+        }
+
+        async function renderNewImagegenOutputs(outputs) {
+            if (!Array.isArray(outputs) || outputs.length <= imagegenRenderedOutputCount) return;
+            imagegenOutputReady = true;
+            showImagegenCandidates();
+
+            const newOutputs = outputs.slice(imagegenRenderedOutputCount);
+            const fragment = document.createDocumentFragment();
+            newOutputs.forEach((output) => {
+                fragment.appendChild(createImagegenResultCard(output));
+            });
+            imagegenResults.appendChild(fragment);
+            imagegenOutputs = outputs;
+            imagegenRenderedOutputCount = outputs.length;
+
+            const hasSelection = Boolean(imagegenSelectedFilename);
+            const selected = outputs.find((output) => output.selected) || (!hasSelection ? outputs[0] : null);
+            if (selected) {
+                await selectImagegenVariant(selected);
+            }
+        }
+
+        function pollImagegenStatus(jobId) {
+            if (imagegenPollInterval) clearInterval(imagegenPollInterval);
+
+            const poll = async () => {
+                try {
+                    const response = await fetch(`/imagegen/status/${encodeURIComponent(jobId)}`);
+                    const data = await response.json();
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Unable to read Image Extension status.');
+                    }
+
+                    const outputCount = Array.isArray(data.outputs) ? data.outputs.length : 0;
+                    const targetCount = data.variants || 1;
+                    const progress = getImagegenProgressSnapshot(data, outputCount, targetCount);
+                    const agentCount = progress.totalAgents;
+                    const failureDiagnostics = getImagegenFailureDiagnostics(data);
+                    imagegenCompletedCount = progress.progressValue;
+
+                    if (data.status === 'queued') {
+                        await renderNewImagegenOutputs(data.outputs);
+                        setImagegenProgress('queued', progress.progressValue, progress.progressTarget, agentCount, failureDiagnostics || null);
+                        return;
+                    }
+
+                    if (data.status === 'running') {
+                        await renderNewImagegenOutputs(data.outputs);
+                        setImagegenProgress('running', progress.progressValue, progress.progressTarget, agentCount, failureDiagnostics || null);
+                        return;
+                    }
+
+                    if (data.status === 'done' && Array.isArray(data.outputs) && data.outputs.length > 0) {
+                        clearInterval(imagegenPollInterval);
+                        imagegenPollInterval = null;
+                        imagegenOutputReady = true;
+                        imagegenStartBtn.disabled = false;
+                        imagegenStopBtn.disabled = true;
+                        updateClearSelectionButton();
+                        await renderImagegenResults(data.outputs);
+                        const hasFailedAgents = progress.failedAgents > 0 || Boolean(data.error);
+                        const readyMessage = hasFailedAgents
+                            ? (data.error || failureDiagnostics || `Image Extension produced ${data.outputs.length} of ${targetCount} images; ${formatCount(progress.failedAgents, 'parallel agent')} failed.`)
+                            : `Image Extension ready: ${data.outputs.length}/${targetCount} ${targetCount === 1 ? 'image' : 'images'}. Select one, then generate.`;
+                        setImagegenProgress(
+                            hasFailedAgents ? 'error' : 'success',
+                            progress.progressTarget,
+                            progress.progressTarget,
+                            agentCount,
+                            readyMessage
+                        );
+                        return;
+                    }
+
+                    if (['error', 'stopped', 'timeout'].includes(data.status)) {
+                        clearInterval(imagegenPollInterval);
+                        imagegenPollInterval = null;
+                        imagegenStartBtn.disabled = false;
+                        imagegenStopBtn.disabled = true;
+                        if (Array.isArray(data.outputs) && data.outputs.length > 0) {
+                            imagegenOutputReady = true;
+                            await renderImagegenResults(data.outputs);
+                        } else {
+                            hideImagegenCandidates();
+                        }
+                        updateClearSelectionButton();
+                        const statusKind = data.status === 'stopped' ? 'stopped' : 'error';
+                        const message = getErrorStatusMessage(
+                            data.error || failureDiagnostics || getImagegenProgressMessage(statusKind, outputCount, targetCount, agentCount),
+                            'Image Extension failed.'
+                        );
+                        setImagegenProgress(statusKind, progress.progressTarget, progress.progressTarget, agentCount, message);
+                    }
+                } catch (error) {
+                    clearInterval(imagegenPollInterval);
+                    imagegenPollInterval = null;
+                    imagegenStartBtn.disabled = false;
+                    imagegenStopBtn.disabled = true;
+                    hideImagegenCandidates();
+                    updateClearSelectionButton();
+                    setImagegenProgress(
+                        'error',
+                        imagegenCompletedCount,
+                        imagegenTargetCount,
+                        imagegenAgentTotal,
+                        getErrorStatusMessage(error, 'Unable to read Image Extension status.')
+                    );
+                }
+            };
+
+            imagegenPollInterval = setInterval(poll, 1500);
+            poll();
+        }
+
+        async function stopImagegenExtension() {
+            if (!imagegenJobId) return;
+
+            imagegenStopBtn.disabled = true;
+            setImagegenProgress('stopping', imagegenCompletedCount, imagegenTargetCount, imagegenAgentTotal);
+            try {
+                await fetch(`/imagegen/stop/${encodeURIComponent(imagegenJobId)}`, { method: 'POST' });
+            } catch (error) {
+                console.warn('Unable to stop Image Extension:', error);
+            }
+        }
+
+        async function generateFromImagegen() {
+            const response = await fetch('/generate_from_imagegen', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    job_id: imagegenJobId,
+                    quality: qualitySelector.value,
+                }),
+            });
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || 'Unable to generate PLY from Image Extension.');
+            }
+            return data;
         }
 
         // Shared Generation Logic (Used by File Upload & Webcam)
         async function performGeneration() {
             hideStatus();
+            if (imagegenOutputReady && imagegenJobId) {
+                showStatus(`Generating PLY from Image Extension (${qualitySelector.value} mode)...`, 'info');
+
+                try {
+                    const data = await generateFromImagegen();
+                    await loadPlyLibrary();
+                    showStatus('PLY generated from Image Extension. Open it in Library.', 'success');
+                    return data;
+                } catch (error) {
+                    showErrorStatus(error, 'Unable to generate PLY from Image Extension.');
+                    return null;
+                }
+            }
+
             const formData = new FormData();
             formData.append('image', selectedFile);
             formData.append('quality', qualitySelector.value); // Pass quality setting
 
-            showStatus(`Generating (${qualitySelector.value} mode)...`, 'info');
+            showStatus(`Generating PLY (${qualitySelector.value} mode)...`, 'info');
 
             try {
                 const response = await fetch('/generate', { method: 'POST', body: formData });
                 const data = await response.json();
 
                 if (data.success) {
-                    // If generated from Webcam, update view URL but optionally keep camera pos
-                    if (data.download_url) {
-                        downloadBtn.href = data.download_url;
-                        downloadBtn.innerHTML = `
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg> Download PLY File`;
-                        downloadSection.classList.add('visible');
-                    }
-
-                    // Unified Logic: Hide all inputs and show Reset button
-                    document.querySelector('.mode-tabs').style.display = 'none';
-                    createView.style.display = 'none';
-                    webcamView.style.display = 'none'; // Ensure webcam view is hidden too
-                    loadView.style.display = 'none';   // Ensure load view is hidden
-                    stopWebcam();                      // Stop the camera
-                    resetAppBtn.style.display = 'flex'; // Show the red reset button
-
-                    loadSplatViewer(data.view_url, true);
-                    showStatus("Generated successfully!", "success");
+                    await loadPlyLibrary();
+                    showStatus('PLY generated. Open it in Library.', 'success');
 
                 } else {
-                    showStatus(data.error || 'Failed', 'error');
+                    showErrorStatus(data.error, 'Unable to generate PLY.');
                 }
             } catch (error) {
-                showStatus('Error: ' + error.message, 'error');
+                showErrorStatus(error, 'Unable to generate PLY.');
             }
+        }
+
+        async function performBatchGeneration() {
+            hideStatus();
+            const formData = new FormData();
+            selectedFiles.forEach((file) => formData.append('images', file));
+            formData.append('quality', qualitySelector.value);
+
+            showStatus(`Generating ${selectedFiles.length} PLY files (${qualitySelector.value} mode)...`, 'info');
+
+            try {
+                const response = await fetch('/generate_batch', { method: 'POST', body: formData });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || 'Unable to generate PLY files.');
+                }
+
+                const items = data.items || [];
+                if (items.length > 0) {
+                    await loadPlyLibrary();
+
+                    const errorCount = (data.errors || []).length;
+                    const message = errorCount > 0
+                        ? `Generated ${items.length}/${selectedFiles.length} PLY files. Open the available results in Library.`
+                        : `Generated ${items.length} PLY files. Open a result in Library.`;
+                    showStatus(message, errorCount > 0 ? 'info' : 'success');
+                } else {
+                    showErrorStatus('No PLY files were generated.');
+                }
+            } catch (error) {
+                showErrorStatus(error, 'Unable to generate PLY files.');
+            }
+        }
+
+        function createVideoFormData(file) {
+            const formData = new FormData();
+            formData.append('video', file);
+            formData.append('quality', qualitySelector.value);
+            formData.append('batch_size', batchSizeSelector.value);
+
+            if (sbsToggle.checked) {
+                formData.append('output_mode', 'sbs_movie');
+                formData.append('opacity_threshold', sbsOpacity.value);
+                formData.append('stereo_offset', sbsOffset.value);
+                formData.append('brightness_factor', sbsBrightness.value);
+                formData.append('frame_skip', sbsFrameSkip.value);
+            } else {
+                formData.append('output_mode', 'ply_seq');
+            }
+
+            return formData;
+        }
+
+        function getSelectedVideoOutputLabel() {
+            return sbsToggle.checked ? 'SBS Movie' : 'PLY Sequence';
+        }
+
+        function showVideoGenerationStart(file, label = '') {
+            const prefix = label ? `${label} ` : '';
+            const outputLabel = getSelectedVideoOutputLabel();
+            const stopHint = sbsToggle.checked ? ' Stop anytime to keep a partial result.' : '';
+            showStatus(`${prefix}Generating ${outputLabel}: ${file.name}.${stopHint}`, 'info');
+        }
+
+        async function startVideoGeneration(file, label = '') {
+            const formData = createVideoFormData(file);
+            stopRequested = false;
+            showVideoGenerationStart(file, label);
+
+            const response = await fetch('/generate_video', { method: 'POST', body: formData });
+            const data = await response.json();
+            if (!response.ok || !data.success || !data.job_id) {
+                throw new Error(data.error || `Unable to start ${getSelectedVideoOutputLabel()} generation.`);
+            }
+
+            activeJobId = data.job_id;
+            stopBtn.disabled = false;
+            stopBtn.innerHTML = stopBtnContent;
+            stopBtn.classList.add('visible');
+            return data.job_id;
+        }
+
+        async function performVideoBatchGeneration(videoFiles) {
+            const total = videoFiles.length;
+
+            for (let index = 0; index < total; index += 1) {
+                const file = videoFiles[index];
+                const batchLabel = `Video ${index + 1}/${total}`;
+
+                try {
+                    const jobId = await startVideoGeneration(file, `${batchLabel}:`);
+                    const result = await new Promise((resolve) => {
+                        startStatusPolling(jobId, {
+                            keepBusy: true,
+                            batchLabel,
+                            onComplete: resolve
+                        });
+                    });
+
+                    if (stopRequested || result.status !== 'done') {
+                        generateBtn.classList.remove('loading');
+                        generateBtn.disabled = false;
+                        updateClearSelectionButton();
+                        resetStopButton();
+                        activeJobId = null;
+                        await loadPlyLibrary();
+
+                        if (result.status === 'error') {
+                            showErrorStatus(`Unable to process ${batchLabel}: ${result.error || file.name}`);
+                        } else {
+                            showStatus(`Video batch stopped at ${batchLabel}.`, 'info');
+                        }
+                        return;
+                    }
+                } catch (error) {
+                    generateBtn.classList.remove('loading');
+                    generateBtn.disabled = false;
+                    updateClearSelectionButton();
+                    resetStopButton();
+                    activeJobId = null;
+                    showErrorStatus(`Unable to process ${batchLabel}: ${error.message}`);
+                    return;
+                }
+            }
+
+            generateBtn.classList.remove('loading');
+            generateBtn.disabled = false;
+            updateClearSelectionButton();
+            resetStopButton();
+            activeJobId = null;
+            await loadPlyLibrary();
+            showStatus(`Generated ${formatCount(total, getSelectedVideoOutputLabel())}. Open them in Library.`, 'success');
         }
 
         async function handleGenerate() {
-            if (!selectedFile) return;
+            if (!selectedFile && selectedFiles.length === 0) return;
             generateBtn.classList.add('loading');
             generateBtn.disabled = true;
+            clearSelectionBtn.disabled = true;
 
             if (isVideoMode) {
                 hideStatus();
-                const formData = new FormData();
-                formData.append('video', selectedFile);
-                formData.append('quality', qualitySelector.value); // Pass quality setting
+                const videoFiles = selectedFiles.length > 0 ? selectedFiles : (selectedFile ? [selectedFile] : []);
 
-                // Set Batch Size
-                formData.append('batch_size', batchSizeSelector.value);
+                if (videoFiles.length === 0) {
+                    generateBtn.classList.remove('loading');
+                    generateBtn.disabled = false;
+                    updateClearSelectionButton();
+                    showErrorStatus('No video selected.');
+                    return;
+                }
 
-                // Set Mode: SBS Movie vs PLY Sequence
-                if (sbsToggle.checked) {
-                    formData.append('output_mode', 'sbs_movie');
-                    formData.append('opacity_threshold', sbsOpacity.value);
-                    formData.append('stereo_offset', sbsOffset.value);
-                    formData.append('brightness_factor', sbsBrightness.value);
-                    formData.append('frame_skip', sbsFrameSkip.value);
-
-                    showStatus('Starting SBS 3D Movie generation (Frames + Rendering)...(Stop at anytime to output movie)', 'info');
-                } else {
-                    formData.append('output_mode', 'ply_seq');
-                    showStatus('Initializing video generation...', 'info');
+                if (videoFiles.length > 1) {
+                    await performVideoBatchGeneration(videoFiles);
+                    return;
                 }
 
                 try {
-                    const response = await fetch('/generate_video', { method: 'POST', body: formData });
-                    const data = await response.json();
-                    if (data.success && data.job_id) { activeJobId = data.job_id; stopBtn.classList.add('visible'); startStatusPolling(data.job_id); } else { showStatus(data.error || 'Failed to start', 'error'); generateBtn.classList.remove('loading'); generateBtn.disabled = false; }
-                } catch (error) { showStatus('Error: ' + error.message, 'error'); generateBtn.classList.remove('loading'); generateBtn.disabled = false; }
+                    const jobId = await startVideoGeneration(videoFiles[0]);
+                    startStatusPolling(jobId);
+                } catch (error) {
+                    showErrorStatus(error, `Unable to start ${getSelectedVideoOutputLabel()} generation.`);
+                    generateBtn.classList.remove('loading');
+                    generateBtn.disabled = false;
+                    updateClearSelectionButton();
+                    resetStopButton();
+                    activeJobId = null;
+                }
+            } else if (selectedFiles.length > 1) {
+                await performBatchGeneration();
+                generateBtn.classList.remove('loading');
+                generateBtn.disabled = !selectedFile && selectedFiles.length === 0;
+                updateClearSelectionButton();
             } else {
                 await performGeneration();
                 generateBtn.classList.remove('loading');
-                generateBtn.disabled = false;
+                generateBtn.disabled = !selectedFile && selectedFiles.length === 0;
+                updateClearSelectionButton();
             }
         }
 
-        async function handleStopJob() { if (!activeJobId) return; stopBtn.disabled = true; stopBtn.textContent = "Stopping..."; try { await fetch(`/stop_job/${activeJobId}`, { method: 'POST' }); } catch (e) { console.error(e); } }
-
-        async function handleLoadLocal() {
-            const path = localPathInput.value.trim();
-            if (!path || path.startsWith('[')) { showStatus('Please enter path', 'error'); return; }
-            const mode = document.querySelector('input[name="load-mode"]:checked').value;
-            loadLocalBtn.classList.add('loading'); loadLocalBtn.disabled = true;
-            hideStatus();
-
+        async function handleStopJob() {
+            if (!activeJobId) return;
+            stopRequested = true;
+            stopBtn.disabled = true;
+            stopBtn.textContent = 'Stopping...';
             try {
-                const response = await fetch('/scan_local', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path, mode }) });
-                const data = await response.json();
-                if (data.success) { isVideoMode = (data.type === 'video'); handleSuccess(data); } else { showStatus(data.error || 'Failed', 'error'); }
-            } catch (error) { showStatus('Error: ' + error.message, 'error'); } finally { loadLocalBtn.classList.remove('loading'); loadLocalBtn.disabled = false; }
+                await fetch(`/stop_job/${activeJobId}`, { method: 'POST' });
+            } catch (e) {
+                console.error(e);
+            }
         }
+        function startStatusPolling(jobId, options = {}) {
+            const keepBusy = Boolean(options.keepBusy);
+            const onComplete = options.onComplete || null;
+            const label = options.batchLabel ? `${options.batchLabel} | ` : '';
+            let consecutiveFailures = 0;
 
-        function startStatusPolling(jobId) {
-            viewerPlaceholder.style.display = 'none';
-            progressBar.classList.add('visible');
+            if (statusPollInterval) clearInterval(statusPollInterval);
+
             statusPollInterval = setInterval(async () => {
                 try {
                     const res = await fetch(`/job_status/${jobId}`);
                     const data = await res.json();
-                    if (res.status !== 200) { clearInterval(statusPollInterval); showStatus(data.error, 'error'); return; }
+                    consecutiveFailures = 0;
+                    if (res.status !== 200) {
+                        clearInterval(statusPollInterval);
+                        resetStopButton();
+                        activeJobId = null;
+                        const errorData = { status: 'error', error: data.error || 'Unable to read generation status.' };
+                        if (!keepBusy) {
+                            generateBtn.classList.remove('loading');
+                            generateBtn.disabled = false;
+                            updateClearSelectionButton();
+                            showErrorStatus(errorData.error);
+                        }
+                        if (onComplete) onComplete(errorData);
+                        return;
+                    }
 
                     const isSBS = (data.mode === 'sbs_movie');
                     const percent = data.total > 0 ? Math.round((data.processed / data.total) * 100) : 0;
-                    progressBarFill.style.width = percent + '%';
 
                     if (isSBS) {
-                        progressBarText.textContent = `Rendering SBS Movie: Frame ${data.processed} / ${data.total}`;
+                        showStatus(`${label}Generating SBS Movie: ${percent}% | Frame ${data.processed} / ${data.total}`, 'info');
                     } else {
-                        progressBarText.textContent = `Processing Frame ${data.processed} / ${data.total}`;
-                    }
-
-                    // Show progress in viewer if not SBS mode
-                    if (!isSBS && data.files.length > 0) {
-                        const lastFile = data.files[data.files.length - 1];
-                        const url = data.base_url + lastFile;
-                        if (url !== lastLoadedFrameUrl) {
-                            lastLoadedFrameUrl = url;
-                            if (!viewer) loadSplatViewer(url, true);
-                            else viewer.loadPly(url, false);
-                        }
+                        showStatus(`${label}Generating PLY Sequence: ${percent}% | Frame ${data.processed} / ${data.total}`, 'info');
                     }
 
                     if (data.status === 'done' || data.status === 'stopped' || data.status === 'error') {
                         clearInterval(statusPollInterval);
-                        stopBtn.classList.remove('visible');
+                        resetStopButton();
+                        activeJobId = null;
+
+                        if (keepBusy) {
+                            if (onComplete) onComplete(data);
+                            return;
+                        }
+
                         generateBtn.classList.remove('loading');
                         generateBtn.disabled = false;
-
-                        // Hide progress bar when done
-                        progressBar.classList.remove('visible');
+                        updateClearSelectionButton();
+                        loadPlyLibrary();
 
                         if (data.status === 'error') {
-                            showStatus('Error: ' + data.error, 'error');
+                            showErrorStatus(data.error, 'Unable to complete generation.');
                         } else {
                             if (isSBS) {
-                                // For SBS, we have a single MP4 file
-                                const finalFile = data.files[data.files.length - 1];
-                                showStatus("SBS Movie Generated Successfully! It is saved in the 'output' folder. It takes time to process all png's.", 'success');
-
-                                // --- NEW BUTTON LOGIC ---
-                                downloadBtn.removeAttribute('href'); // Disable direct download link
-                                downloadBtn.style.cursor = "pointer";
-
-                                // When clicked, tell server to open the folder window
-                                downloadBtn.onclick = async (e) => {
-                                    e.preventDefault();
-                                    try {
-                                        await fetch('/open_output_folder', { method: 'POST' });
-                                    } catch (err) {
-                                        console.error("Failed to open folder", err);
-                                        showStatus("Could not open folder automatically.", "error");
-                                    }
-                                };
-
-                                // Update Button Text/Icon to "Open Output Folder"
-                                downloadBtn.innerHTML = `
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
-                                </svg> Open Output Folder`;
-
-                                downloadSection.classList.add('visible');
-
-                                // Reset UI elements
-                                document.querySelector('.mode-tabs').style.display = 'none';
-                                createView.style.display = 'none';
-                                resetAppBtn.style.display = 'flex';
-
+                                if (data.status === 'stopped') {
+                                    showStatus(data.error || 'SBS Movie stopped. A partial result is available in Library.', 'info');
+                                } else {
+                                    showStatus('SBS Movie generated. Open it in Library.', 'success');
+                                }
                             } else {
-                                const msg = data.status === 'stopped' ? 'Processing Stopped.' : 'Processing Complete!';
-                                showStatus(`${msg} Files saved to output folder. Use "Load Existing" to view specific frames.`, 'success');
+                                if (data.status === 'stopped') {
+                                    showStatus(data.error || 'PLY Sequence stopped. Generated frames remain available in Library.', 'info');
+                                } else {
+                                    showStatus('PLY Sequence generated. Open it in Library.', 'success');
+                                }
                             }
                         }
+
+                        if (onComplete) onComplete(data);
                     }
-                } catch (e) { console.error(e); }
+                } catch (error) {
+                    console.error(error);
+                    consecutiveFailures += 1;
+                    if (consecutiveFailures < 3) return;
+
+                    clearInterval(statusPollInterval);
+                    statusPollInterval = null;
+                    resetStopButton();
+                    activeJobId = null;
+                    const errorData = {
+                        status: 'error',
+                        error: 'Lost connection to the generation service after 3 attempts.',
+                    };
+                    if (!keepBusy) {
+                        generateBtn.classList.remove('loading');
+                        generateBtn.disabled = false;
+                        updateClearSelectionButton();
+                        showErrorStatus(errorData.error);
+                    }
+                    if (onComplete) onComplete(errorData);
+                }
             }, 1500);
         }
 
-        function handleSuccess(data) {
-            document.querySelector('.mode-tabs').style.display = 'none';
-            createView.style.display = 'none';
-            loadView.style.display = 'none';
-            webcamView.style.display = 'none';
-            resetAppBtn.style.display = 'flex';
-            if (data.type === 'video') setupVideoPlayback(data);
-            else { if (data.download_url) { downloadBtn.href = data.download_url; downloadSection.classList.add('visible'); } loadSplatViewer(data.view_url, true); }
+        /* --- VIDEO PLAYBACK LOGIC --- */
+        function releaseVideoBlobUrls() {
+            for (const url of videoData.blobUrls) {
+                if (typeof url === 'string' && url.startsWith('blob:')) {
+                    URL.revokeObjectURL(url);
+                }
+            }
+            videoData.blobUrls = [];
         }
 
-        /* --- VIDEO PLAYBACK LOGIC --- */
-        async function setupVideoPlayback(data, existingBlobs = null) {
-            gpuWarning.style.display = 'block';
-
-            videoData.blobUrls = [];
+        function resetVideoPlaybackState() {
+            pauseVideo();
+            releaseVideoBlobUrls();
             videoData.currentFrame = 0;
+            vidScrubber.value = 0;
+            vidScrubber.max = 0;
+            vidInfo.textContent = 'Frame: 0 / 0';
+        }
+
+        async function setupVideoPlayback(data, existingBlobs = null) {
+            resetVideoPlaybackState();
+
             videoControls.classList.add('visible');
             vidPlayBtn.disabled = true;
             vidPlayBtn.textContent = "⏳";
 
+            // Pass server URLs straight to Spark (it loads one at a time). Do NOT
+            // pre-fetch every frame into blobs first -- ~64MB x N held in RAM at
+            // once exhausts the renderer process ("Array buffer allocation failed"
+            // -> frames load empty -> black). File picker passes blob: URLs, which
+            // preloadFrames() revokes per-frame after parsing.
             let urls = existingBlobs || [];
             if (!existingBlobs) {
-                if (!data.ply_files || data.ply_files.length === 0) { showStatus("No frames.", "error"); return; }
-                const total = data.ply_files.length;
-                showStatus(`Downloading ${total} frames...`, 'info');
-                progressBar.classList.add('visible');
-                try {
-                    for (let i = 0; i < total; i++) {
-                        const url = data.base_url + data.ply_files[i];
-                        const percent = Math.round((i / total) * 100);
-                        progressBarFill.style.width = percent + '%';
-                        progressBarText.textContent = `Downloading frame ${i + 1}/${total}`;
-                        const response = await fetch(url);
-                        if (!response.ok) throw new Error(`Failed to fetch frame ${i}`);
-                        const blob = await response.blob();
-                        urls.push(URL.createObjectURL(blob));
-                    }
-                } catch (e) { showStatus("Error buffering: " + e.message, "error"); progressBar.classList.remove('visible'); if (urls.length === 0) return; }
+                if (!data.ply_files || data.ply_files.length === 0) { showErrorStatus('No PLY Sequence frames found.'); return; }
+                urls = data.ply_files.map((f) => data.base_url + f);
             }
 
             videoData.blobUrls = urls;
@@ -1926,8 +4373,6 @@
             progressBar.classList.add('visible');
             progressBarFill.style.width = '0%';
             progressBarText.textContent = `Preparing to load ${urls.length} frames into GPU...`;
-
-            showStatus(`<b>Loading ${urls.length} frames into GPU memory...</b><br>Please be patient.`, 'info');
 
             if (!viewer) loadSplatViewer('', true);
 
@@ -1941,11 +4386,23 @@
                         progressBarFill.style.width = percent + '%';
                         progressBarText.textContent = `Loading into GPU: ${loaded}/${total}`;
                     }).then(() => {
+                        progressBarFill.style.width = '0%';
+                        progressBarText.textContent = `Preparing playback: 0/${urls.length}`;
+                        return viewer.warmUpFrames((loaded, total) => {
+                            const percent = Math.round((loaded / total) * 100);
+                            progressBarFill.style.width = percent + '%';
+                            progressBarText.textContent = `Preparing playback: ${loaded}/${total}`;
+                        });
+                    }).then(() => {
                         progressBar.classList.remove('visible');
-                        showStatus("Ready to play.", "success");
+                        showStatus('PLY Sequence ready to play.', 'success');
                         setTimeout(() => {
                             finishVideoSetup(data.fps || 30);
                         }, 500);
+                    }).catch((error) => {
+                        progressBar.classList.remove('visible');
+                        viewerPlaceholder.style.display = 'block';
+                        showErrorStatus(`Unable to load PLY Sequence: ${error.message}`);
                     });
                 }
             }, 100);
@@ -1955,6 +4412,7 @@
             videoData.fps = fps;
             vidScrubber.max = videoData.blobUrls.length - 1;
             vidScrubber.value = 0;
+            goToFrame(0);
             vidPlayBtn.disabled = false;
             vidPlayBtn.textContent = "▶";
         }
@@ -1965,8 +4423,10 @@
 
         function playVideo() {
             if (!viewer) return;
+            if (videoData.isPlaying) return;
             videoData.isPlaying = true;
             vidPlayBtn.textContent = "⏸";
+            clearInterval(videoData.timer);
             const frameTime = 1000 / videoData.fps;
             videoData.timer = setInterval(() => {
                 let nextFrame = videoData.currentFrame + 1;
@@ -1996,8 +4456,7 @@
                 return;
             }
             viewerPlaceholder.style.display = 'none';
-            if (!activeJobId) { progressBar.classList.add('visible'); progressBarFill.style.width = '0%'; progressBarText.textContent = 'Loading 3D model...'; }
-            if (viewer) { if (viewer.dispose) viewer.dispose(); viewer = null; }
+            if (!activeJobId) { progressBar.classList.add('visible'); progressBarFill.style.width = '0%'; progressBarText.textContent = 'Loading PLY...'; }
             const oldCanvas = document.getElementById('splat-canvas');
             if (oldCanvas) oldCanvas.remove();
             setTimeout(() => {
@@ -2009,22 +4468,60 @@
                     if (typeof GaussianSplatViewer === 'undefined') throw new Error("Viewer script not loaded");
                     viewer = new GaussianSplatViewer(splatCanvas, {
                         onProgress: (percent) => { if (resetCamera && !activeJobId) { progressBarFill.style.width = percent + '%'; if (percent < 50) progressBarText.textContent = `Downloading: ${percent * 2}%`; else progressBarText.textContent = `Processing: ${(percent - 50) * 2}%`; } },
-                        onLoad: () => { if (!activeJobId) progressBar.classList.remove('visible'); splatCanvas.classList.add('visible'); viewerControls.classList.add('visible'); topControls.classList.add('visible'); if (resetCamera) { viewer.resetCamera(); if (viewer.camera) viewer.camera.position.z -= 3.0; } if (!isVideoMode && !activeJobId) { showStatus('Loaded!', 'success'); } window.dispatchEvent(new Event('resize')); },
-                        onError: (error) => { console.error(error); if (!activeJobId) progressBar.classList.remove('visible'); viewerPlaceholder.style.display = 'block'; showStatus('Error: ' + error.message, 'error'); }
+                        onLoad: () => { if (!activeJobId) progressBar.classList.remove('visible'); splatCanvas.classList.add('visible'); setViewerControlsVisible(false); topControls.classList.add('visible'); if (resetCamera) { viewer.resetCamera(); } window.dispatchEvent(new Event('resize')); },
+                        onError: (error) => { console.error(error); if (!activeJobId) progressBar.classList.remove('visible'); viewerPlaceholder.style.display = 'block'; showErrorStatus(`Unable to load PLY: ${error.message}`); }
                     });
                     if (url) viewer.loadPly(url, resetCamera);
-                } catch (err) { console.error(err); showStatus("Viewer initialization failed. Try refreshing.", "error"); }
+                } catch (err) { console.error(err); showErrorStatus('Unable to initialize the viewer. Try refreshing.'); }
             }, 50);
         }
 
         async function checkServerStatus() {
-            try { const response = await fetch('/status'); const data = await response.json(); let deviceText = data.device; let deviceClass = ''; if (data.cuda_available) { deviceClass = 'cuda'; deviceText = 'CUDA GPU'; } else if (data.device === 'mps') { deviceText = 'Apple MPS'; } else { deviceText = 'CPU'; } deviceInfo.innerHTML = `<span class="device-badge ${deviceClass}">${deviceText}</span>`; } catch (error) { console.error('Server status check failed:', error); }
+            try { const response = await fetch('/status'); const data = await response.json(); let deviceText = data.device; let deviceClass = 'cpu'; if (data.cuda_available) { deviceClass = 'cuda'; deviceText = 'CUDA'; } else if (data.device === 'mps') { deviceClass = 'mps'; deviceText = 'Apple MPS'; } else { deviceText = 'CPU'; } deviceInfo.innerHTML = `<span class="device-badge ${deviceClass}">${deviceText}</span>`; } catch (error) { console.error('Server status check failed:', error); }
         }
 
-        function showStatus(message, type) { statusMessage.textContent = message; statusMessage.className = `status-message visible ${type}`; }
-        function hideStatus() { } // Disabled as requested
+        function formatCount(count, singular, plural = `${singular}s`) {
+            return `${count} ${Number(count) === 1 ? singular : plural}`;
+        }
+
+        function getErrorStatusMessage(error, fallback = 'Unable to complete the operation.') {
+            const rawMessage = error instanceof Error ? error.message : error;
+            const message = typeof rawMessage === 'string' && rawMessage.trim()
+                ? rawMessage.trim()
+                : fallback;
+            return /[.!?…]$/.test(message) ? message : `${message}.`;
+        }
+
+        function showErrorStatus(error, fallback) {
+            showStatus(getErrorStatusMessage(error, fallback), 'error');
+        }
+
+        function showStatus(message, type) {
+            if (statusToastTimer) clearTimeout(statusToastTimer);
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message visible ${type}`;
+            statusToastTimer = setTimeout(() => {
+                statusMessage.className = 'status-message';
+                statusToastTimer = null;
+            }, 5000);
+        }
+        function hideStatus() {
+            if (statusToastTimer) clearTimeout(statusToastTimer);
+            statusToastTimer = null;
+            statusMessage.className = 'status-message';
+        }
         function toggleFullscreen() { if (!document.fullscreenElement && !document.webkitFullscreenElement) { if (viewerContainer.requestFullscreen) viewerContainer.requestFullscreen(); else if (viewerContainer.webkitRequestFullscreen) viewerContainer.webkitRequestFullscreen(); } else { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); } }
-        function updateFullscreenIcon() { if (document.fullscreenElement || document.webkitFullscreenElement) { iconExpand.style.display = 'none'; iconCompress.style.display = 'block'; } else { iconExpand.style.display = 'block'; iconCompress.style.display = 'none'; } }
+        function updateFullscreenIcon() {
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                iconExpand.style.display = 'none';
+                iconCompress.style.display = 'block';
+            } else {
+                iconExpand.style.display = 'block';
+                iconCompress.style.display = 'none';
+            }
+            // Fullscreen changes can update CSS size before the canvas catches up.
+            requestAnimationFrame(() => { if (viewer) viewer.handleResize(); });
+        }
     </script>
 </body>
 

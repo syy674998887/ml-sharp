@@ -164,3 +164,19 @@ cython_debug/
 .DS_STORE
 *.pt
 .aider*
+
+# Project-generated outputs
+output/
+
+# Node / Electron
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+release/
+
+# Local development context (not part of the public repository)
+Memory.md
+documentation/

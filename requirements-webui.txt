@@ -1,2 +1,0 @@
-# Additional dependencies for ml-sharp WebUI
-flask>=3.0.0
